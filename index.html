@@ -1557,7 +1557,14 @@ async function loadResearchDraft(){
         "/functions/v1/load-draft",
         {participant_code:code}
       );
-
+if(result?.already_submitted){
+  const r=document.getElementById("researchReceipt");
+  if(r){
+    r.classList.remove("hidden");
+    r.innerHTML="<strong>Your feedback has already been submitted.</strong> No additional response is required.";
+  }
+  return;
+}
       if(result?.draft){
         applyDraft(result.draft);
         return;
