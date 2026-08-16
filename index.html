@@ -42,6 +42,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;borde
 <script>
 window.CHECKPOINTFIT_CONFIG = {
   apiBase: "https://dntrkysfwjmrasqacvps.supabase.co",
+  publishableKey: "sb_publishable_OKLCbsmJ7GL3p6J0nMPkpA_5h9l2C17",
   participantCode: new URLSearchParams(location.search).get("code") || "",
   studyVersion: "pilot-v1.0"
 };
@@ -51,7 +52,10 @@ async function checkpointFitApi(path, payload){
   if(!base) throw new Error("Hosted API is not configured.");
   const res=await fetch(base+path,{
     method:"POST",
-    headers:{"content-type":"application/json"},
+    headers:{
+  "content-type":"application/json",
+  "apikey":window.CHECKPOINTFIT_CONFIG?.publishableKey || ""
+},
     body:JSON.stringify(payload)
   });
   const data=await res.json().catch(()=>({}));
