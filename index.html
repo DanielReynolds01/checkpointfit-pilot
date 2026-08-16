@@ -1457,7 +1457,7 @@ function researchSnapshot(){
  };
 }
 function saveResearchDraft(){
- try{localStorage.setItem("simmsBreakItDraft_"+(window.CHECKPOINTFIT_CONFIG?.participantCode||researchValue("researchParticipant")||"anonymous"),JSON.stringify(researchSnapshot()));
+ try{localStorage.setItem("simmsBreakItDraft_"+(window.CHECKPOINTFIT_CONFIG?.participantCode||researchValue("researchParticipant")||"anonymous"),JSON.stringify(researchSnapshot()));}
  catch(e){let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Local draft storage is unavailable in this browser context.</strong> You can still export the feedback JSON.";return;}
  let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved locally.</strong> It remains in this browser only.";
 }
