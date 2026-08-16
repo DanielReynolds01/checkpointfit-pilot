@@ -92,7 +92,17 @@ async function saveResearchDraftHosted(){
       payload:d
     });
     const r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved securely.</strong>";
-  }catch(err){ saveResearchDraft(); }
+  }catch(err){
+  const msg=String(err.message||err);
+  const r=document.getElementById("researchReceipt");
+
+  if(msg.includes("Invalid participant code")){
+    r.classList.remove("hidden");
+    r.innerHTML="<strong>Participant code not recognised.</strong> Please check the invitation link you were given. This draft has not been saved.";
+  }else{
+    saveResearchDraft();
+  }
+}
 }
 document.addEventListener("DOMContentLoaded",()=>{
   const code=window.CHECKPOINTFIT_CONFIG?.participantCode;
