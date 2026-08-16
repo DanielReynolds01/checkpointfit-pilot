@@ -1479,23 +1479,109 @@ function saveResearchDraft(){
  catch(e){let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Local draft storage is unavailable in this browser context.</strong> You can still export the feedback JSON.";return;}
  let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved locally.</strong> It remains in this browser only.";
 }
-function loadResearchDraft(){
- let raw=null;try{raw=localStorage.getItem("simmsBreakItDraft_"+(window.CHECKPOINTFIT_CONFIG?.participantCode||researchValue("researchParticipant")||"anonymous"))}catch(e){return} if(!raw)return;
- try{
-  let d=JSON.parse(raw), map={
-   researchParticipant:d.participant?.reference,researchRole:d.participant?.role,researchPerspective:d.participant?.perspective,researchProject:d.participant?.project,
-   researchManualHours:d.participant?.normalManualHours,researchFollowupHours:d.participant?.remainingDeskHours,researchOriginalConfidence:d.participant?.originalDecisionConfidence,
-   availKnow:d.informationAvailability?.knowNow,availLookup:d.informationAvailability?.internalLookup,availTeam:d.informationAvailability?.anotherTeam,
-   availVendor:d.informationAvailability?.vendorOem,availMeasure:d.informationAvailability?.measurementTest,availIrrelevant:d.informationAvailability?.notRelevant,
-   availUnclear:d.informationAvailability?.didNotUnderstand,availEvidence:d.informationAvailability?.evidenceSourceUnclear,
-   overallCredibility:d.overall?.technicalCredibility,decisionUse:d.overall?.realDecisionUse,nextActionClearer:d.overall?.nextActionClearer,
-   materialFinding:d.overall?.materialFinding,workEffect:d.overall?.workEffect,useAgain:d.overall?.useAgainFree,shareInternal:d.overall?.shareInternally,
-   useRfi:d.overall?.useRfi,useStage:d.overall?.mostUsefulStage,useAgainWhy:d.overall?.useAgainWhy,trustBreak:d.overall?.firstTrustBreak,
-   missingQuestion:d.overall?.missingQuestion,keepDelete:d.overall?.keepDelete,researchOther:d.overall?.other
-  };
-  Object.entries(map).forEach(([id,v])=>{let e=document.getElementById(id);if(e&&v!==undefined)e.value=v});
-  RESEARCH_AREAS.forEach(([id])=>{let c=d.challenges?.[id];if(!c)return;[["rv_",c.verdict],["sev_",c.severity],["ev_",c.evidenceType],["why_",c.explanation],["instead_",c.expectedInstead],["ref_",c.reference]].forEach(([pre,v])=>{let e=document.getElementById(pre+id);if(e&&v!==undefined)e.value=v})});
- }catch(e){}
+async function loadResearchDraft(){
+
+  function applyDraft(d){
+    let map={
+      researchParticipant:
+        window.CHECKPOINTFIT_CONFIG?.participantCode ||
+        d.participant?.reference,
+
+      researchRole:d.participant?.role,
+      researchPerspective:d.participant?.perspective,
+      researchProject:d.participant?.project,
+      researchManualHours:d.participant?.normalManualHours,
+      researchFollowupHours:d.participant?.remainingDeskHours,
+      researchOriginalConfidence:d.participant?.originalDecisionConfidence,
+
+      availKnow:d.informationAvailability?.knowNow,
+      availLookup:d.informationAvailability?.internalLookup,
+      availTeam:d.informationAvailability?.anotherTeam,
+      availVendor:d.informationAvailability?.vendorOem,
+      availMeasure:d.informationAvailability?.measurementTest,
+      availIrrelevant:d.informationAvailability?.notRelevant,
+      availUnclear:d.informationAvailability?.didNotUnderstand,
+      availEvidence:d.informationAvailability?.evidenceSourceUnclear,
+
+      overallCredibility:d.overall?.technicalCredibility,
+      decisionUse:d.overall?.realDecisionUse,
+      nextActionClearer:d.overall?.nextActionClearer,
+      materialFinding:d.overall?.materialFinding,
+      workEffect:d.overall?.workEffect,
+      useAgain:d.overall?.useAgainFree,
+      shareInternal:d.overall?.shareInternally,
+      useRfi:d.overall?.useRfi,
+      useStage:d.overall?.mostUsefulStage,
+      useAgainWhy:d.overall?.useAgainWhy,
+      trustBreak:d.overall?.firstTrustBreak,
+      missingQuestion:d.overall?.missingQuestion,
+      keepDelete:d.overall?.keepDelete,
+      researchOther:d.overall?.other
+    };
+
+    Object.entries(map).forEach(([id,v])=>{
+      let e=document.getElementById(id);
+      if(e && v!==undefined && v!==null){
+        e.value=v;
+      }
+    });
+
+    RESEARCH_AREAS.forEach(([id])=>{
+      let c=d.challenges?.[id];
+      if(!c)return;
+
+      [
+        ["rv_",c.verdict],
+        ["sev_",c.severity],
+        ["ev_",c.evidenceType],
+        ["why_",c.explanation],
+        ["instead_",c.expectedInstead],
+        ["ref_",c.reference]
+      ].forEach(([pre,v])=>{
+        let e=document.getElementById(pre+id);
+        if(e && v!==undefined && v!==null){
+          e.value=v;
+        }
+      });
+    });
+  }
+
+  const code =
+    window.CHECKPOINTFIT_CONFIG?.participantCode ||
+    researchValue("researchParticipant") ||
+    "";
+
+  if(code){
+    try{
+      const result=await checkpointFitApi(
+        "/functions/v1/load-draft",
+        {participant_code:code}
+      );
+
+      if(result?.draft){
+        applyDraft(result.draft);
+        return;
+      }
+    }catch(err){
+      console.warn("Server draft could not be loaded:",err);
+    }
+  }
+
+  let raw=null;
+
+  try{
+    raw=localStorage.getItem(
+      "simmsBreakItDraft_"+(code||"anonymous")
+    );
+  }catch(e){
+    return;
+  }
+
+  if(!raw)return;
+
+  try{
+    applyDraft(JSON.parse(raw));
+  }catch(e){}
 }
 function exportResearch(){
  let d=researchSnapshot();
