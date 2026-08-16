@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIMMS AI Storage Readiness — CheckpointFit — AI Checkpoint Infrastructure Assessment</title>
+<style>
+:root{--ink:#17212b;--muted:#647180;--bg:#f5f7f9;--panel:#fff;--line:#dbe2e8;--nav:#10283a;--nav2:#1c4058;--blue:#285d86;--soft:#edf4f8;--green:#286347;--greenbg:#eaf6ef;--amber:#815b09;--amberbg:#fff6dc;--red:#843434;--redbg:#fff0ef}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}aside{background:var(--nav);color:white;padding:22px 18px;position:sticky;top:0;height:100vh}
+.logo{font-weight:800;font-size:18px}.tag{font-size:12px;color:#b9cbd8;margin:6px 0 24px}.stage{font-size:11px;letter-spacing:.08em;color:#9bb8ca;margin-bottom:5px}.state{background:#16384e;border:1px solid #31576f;border-radius:10px;padding:12px;margin-bottom:20px;font-weight:700}
+nav button{width:100%;display:block;border:0;background:transparent;color:#c8d5de;text-align:left;padding:10px 11px;border-radius:8px;margin:3px 0;cursor:pointer}nav button.active{background:var(--nav2);color:#fff;font-weight:700}
+main{padding:28px;max-width:1180px;width:100%}.screen{display:none}.screen.active{display:block}
+.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:24px}.crumb{font-size:13px;color:var(--muted)}select,input,textarea,button{font:inherit}
+.scenario select,.field input,.field select,.field textarea{border:1px solid #ccd6df;border-radius:8px;background:white;padding:10px;width:100%}
+.scenario select{width:auto}h1{font-size:30px;line-height:1.15;margin:0 0 10px}h2{font-size:20px;margin:25px 0 12px}h3{font-size:15px;margin:0 0 7px}.lead{color:var(--muted);font-size:16px;line-height:1.55;max-width:820px;margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:white;border:1px solid var(--line);border-radius:12px;padding:17px}.s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
+.field label{font-weight:700;font-size:13px;display:block;margin-bottom:7px}.hint,.small{font-size:12px;color:var(--muted);line-height:1.5}.why{margin-top:9px;color:var(--blue);font-size:12px;cursor:pointer}.whytext{display:none;background:#f4f7fa;padding:9px;border-radius:7px;margin-top:7px;font-size:12px;color:#53606c;line-height:1.45}
+.choice{display:grid;gap:8px}.choice label{border:1px solid var(--line);border-radius:9px;padding:11px;background:white;font-weight:500;cursor:pointer}.choice input{width:auto;margin-right:8px}
+.callout{padding:14px;border-radius:10px;margin:14px 0;line-height:1.5}.info{background:var(--soft);border:1px solid #cbdde8}.warn{background:var(--amberbg);border:1px solid #edd18b;color:#684b0b}.danger{background:var(--redbg);border:1px solid #e7b3ae;color:#762d2d}.good{background:var(--greenbg);border:1px solid #b8ddc8;color:#225b3f}
+.actions{display:flex;justify-content:space-between;margin-top:24px;gap:10px}.primary,.secondary{padding:10px 15px;border-radius:8px;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:white;border:1px solid var(--blue)}.secondary{background:white;color:var(--ink);border:1px solid var(--line)}
+.chip{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;background:#edf1f4;color:#52606c}.chip.red{background:#fbe5e3;color:#853832}.chip.amber{background:#fff0c8;color:#7d5808}.chip.green{background:#e4f4eb;color:#286347}.chip.blue{background:#e7f0f7;color:#285d86}
+.result-hero{background:white;border:1px solid var(--line);border-radius:14px;padding:22px}.result-status{font-size:13px;font-weight:800;color:#7a5505}.result-title{font-size:27px;font-weight:800;margin:6px 0 8px}.finding{border-left:4px solid #d2a33e;padding:3px 0 3px 13px;margin:17px 0}.finding.redline{border-color:#b95a50}.finding.greenline{border-color:#55906d}.finding p{margin:4px 0;color:#53606c;line-height:1.5}
+.steps{counter-reset:item}.step{display:grid;grid-template-columns:42px 1fr;gap:12px;margin:13px 0}.num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e9f1f6;color:#234e6d;font-weight:800}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}.metric .v{font-size:22px;font-weight:800}.metric .k{font-size:12px;color:var(--muted);margin-bottom:5px}
+details{background:white;border:1px solid var(--line);border-radius:10px;margin:10px 0}summary{cursor:pointer;padding:14px;font-weight:700}details>div{padding:0 14px 14px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;border-bottom:1px solid #e7ecf0;text-align:left}th{color:#5f6a75;background:#fafbfc}
+.rfi{background:white;border:1px solid var(--line);border-radius:12px;padding:20px}.rfi h2{margin-top:0}.hidden{display:none!important}
+@media(max-width:850px){.app{grid-template-columns:1fr}aside{position:relative;height:auto}nav{display:grid;grid-template-columns:1fr 1fr}main{padding:18px}.s8,.s6,.s4{grid-column:span 12}.metrics{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
+
+.rulebox{margin-top:12px;border:1px solid #d7e2ea;background:#f8fbfd;border-radius:10px;padding:13px}
+.rulebox .rule-title{font-weight:800;font-size:13px;margin-bottom:5px}
+.rulebox p{font-size:12px;color:#53606c;line-height:1.5;margin:5px 0}
+.rulebox .decision{font-weight:700;color:#17212b}
+.proof{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.proof .p{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px}
+.proof .pv{font-size:18px;font-weight:800}.proof .pk{font-size:11px;color:var(--muted)}
+.engine-state{font-size:12px;font-weight:800;letter-spacing:.04em}
+@media(max-width:850px){.proof{grid-template-columns:1fr 1fr}}
+</style>
+
+<script>
+window.CHECKPOINTFIT_CONFIG = {
+  apiBase: window.localStorage?.getItem("checkpointfit_api_base") || "",
+  participantCode: new URLSearchParams(location.search).get("code") || "",
+  studyVersion: "pilot-v1.0"
+};
+
+async function checkpointFitApi(path, payload){
+  const base=(window.CHECKPOINTFIT_CONFIG?.apiBase||"").replace(/\/$/,"");
+  if(!base) throw new Error("Hosted API is not configured.");
+  const res=await fetch(base+path,{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error||`Request failed: ${res.status}`);
+  return data;
+}
+async function submitResearchHosted(){
+  const d=researchSnapshot();
+  if(!d.participant.reference && window.CHECKPOINTFIT_CONFIG?.participantCode){
+    d.participant.reference=window.CHECKPOINTFIT_CONFIG.participantCode;
+    const e=document.getElementById("researchParticipant"); if(e)e.value=d.participant.reference;
+  }
+  const r=document.getElementById("researchReceipt");
+  try{
+    r.classList.remove("hidden"); r.innerHTML="<strong>Submitting securely…</strong>";
+    const out=await checkpointFitApi("/functions/v1/submit-feedback",{
+      participant_code:d.participant.reference,
+      study_version:window.CHECKPOINTFIT_CONFIG?.studyVersion||"pilot-v1.0",
+      payload:d
+    });
+    r.innerHTML=`<strong>Submitted.</strong> Reference ${out.submission_id||d.participant.reference}. Your research response has been received.`;
+  }catch(err){
+    r.innerHTML=`<strong>Online submission unavailable.</strong> ${String(err.message||err)} You can still use “Export feedback (.json)” and return the file manually.`;
+  }
+}
+async function saveResearchDraftHosted(){
+  const d=researchSnapshot();
+  try{
+    await checkpointFitApi("/functions/v1/save-draft",{
+      participant_code:d.participant.reference||window.CHECKPOINTFIT_CONFIG?.participantCode||"",
+      study_version:window.CHECKPOINTFIT_CONFIG?.studyVersion||"pilot-v1.0",
+      payload:d
+    });
+    const r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved securely.</strong>";
+  }catch(err){ saveResearchDraft(); }
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  const code=window.CHECKPOINTFIT_CONFIG?.participantCode;
+  const e=document.getElementById("researchParticipant");
+  if(code&&e&&!e.value)e.value=code;
+});
+
+</script>
+
+</head>
+<body><div style="position:fixed;right:18px;top:10px;z-index:20;font-size:12px;opacity:.72">CheckpointFit <span style="opacity:.72">by SIMMS</span></div>
+<div class="app">
+<aside>
+<div class="logo">SIMMS AI Storage Readiness</div>
+<div class="tag">Free checkpoint readiness & qualification assessment</div>
+<div class="stage">CURRENT STATUS</div><div class="state" id="sideState">Tell us what you're building</div>
+<nav id="nav"></nav>
+</aside>
+<main>
+<div class="top"><div class="crumb" id="crumb">Assessment / Your environment</div><div class="scenario"><select id="scenario"><option value="s1">Example: large AI training cluster</option><option value="s2">Example: measured uneven SSD writes</option><option value="s3">Example: fast local storage, recovery gap</option></select></div></div>
+
+<section class="screen active" data-i="0">
+<h1>Tell us what you're building</h1>
+<p class="lead">Answer what you know. “We don't know yet” is a useful answer—the assessment will show you what matters, what can already be specified, and what you should investigate before selecting storage.</p>
+<div class="card s12">
+<h2 style="margin-top:0">Environment fingerprint</h2>
+<p class="small">These answers describe the system producing the checkpoint workload. The tool will not turn brand names into storage requirements; it uses them to scope which measurements, semantics and qualification evidence remain valid when the environment changes.</p>
+</div>
+<div class="grid">
+<div class="card s6 field"><label>What are you building or expanding?</label><input id="project" value="Large AI training cluster"></div>
+<div class="card s6 field"><label>Training workload type</label><select id="workloadType"><option value="pretraining" selected>Pretraining / continued pretraining</option><option value="finetuning">Fine-tuning</option><option value="other">Other</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Model / architecture family</label><input id="modelFamily" value="Transformer / LLM"><div class="hint">Context only unless paired with measured/design checkpoint information.</div></div>
+<div class="card s6 field"><label>Approximate model parameter count (billions)</label><input id="modelParamsB" type="number" value="405"><div class="hint">Used as context/evidence scope, not to manufacture an exact checkpoint size.</div></div>
+<div class="card s6 field"><label>Training framework / stack</label><select id="frameworkStack"><option value="pytorch">PyTorch</option><option value="nemo_megatron" selected>NeMo / Megatron Core</option><option value="custom">Custom / other</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Exact framework/software version</label><input id="frameworkVersion" value="current validated environment"></div>
+<div class="card s6 field"><label>Checkpoint implementation</label><select id="checkpointLibrary"><option value="pytorch_dcp">PyTorch Distributed Checkpoint</option><option value="megatron_dist" selected>Megatron Core distributed checkpointing</option><option value="custom">Custom / other</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Checkpoint format</label><select id="checkpointStackFormat"><option value="torch_dist" selected>torch_dist / DCP distributed format</option><option value="safetensors">Safetensors / consolidated</option><option value="custom">Custom</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Checkpoint state included</label><select id="checkpointStateProfile"><option value="full_resume" selected>Model + optimizer + training state for full resume</option><option value="weights_only">Model weights only</option><option value="custom">Custom state selection</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Training precision / master-state approach</label><select id="trainingPrecision"><option value="mixed" selected>Mixed precision with higher-precision training/optimizer state</option><option value="true_half">True lower-precision state</option><option value="other">Other</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Accelerator type</label><input id="acceleratorType" value="GPU platform - exact type recorded"><div class="hint">Changes scope performance/staging evidence; does not by itself change logical checkpoint bytes.</div></div>
+<div class="card s6 field"><label>Accelerators / ranks per node</label><input id="acceleratorsPerNode" type="number" value="8"></div>
+<div class="card s4 field"><label>Data parallel degree</label><input id="dpDegree" type="number" value="2"></div>
+<div class="card s4 field"><label>Tensor parallel degree</label><input id="tpDegree" type="number" value="8"></div>
+<div class="card s4 field"><label>Pipeline parallel degree</label><input id="ppDegree" type="number" value="4"></div>
+<div class="card s6 field"><label>Parallel checkpoint save?</label><select id="parallelSave"><option value="yes" selected>Yes</option><option value="no">No</option><option value="unknown">Unknown</option></select></div>
+<div class="card s6 field"><label>Shared storage / filesystem / object-store layer</label><input id="sharedBackend" value="Shared durable storage - exact backend recorded"></div>
+<div class="card s6 field"><label>Network / fabric on checkpoint shared path</label><input id="networkFabric" value="Production fabric - exact configuration recorded"></div>
+<div class="card s6 field"><label>Scheduler / orchestrator</label><select id="schedulerStack"><option value="slurm" selected>Slurm / HPC scheduler</option><option value="kubernetes">Kubernetes</option><option value="nemo_run">NeMo Run / fault-tolerance stack</option><option value="custom">Custom / other</option><option value="unknown">Not decided</option></select></div>
+<div class="card s6 field"><label>Scheduler restart/preemption configuration</label><input id="schedulerConfig" value="Production restart/preemption policy recorded"></div>
+<div class="card s6 field"><label>How many compute nodes?</label><input id="nodes" type="number" value="64"></div>
+<div class="card s6 field"><label>What checkpoint size are you entering?</label><input id="ckpt" type="number" step=".01" value="5.29"><div class="hint">TB, decimal</div>
+<select id="ckptBasis" style="margin-top:8px"><option value="design_bound">A design / worst-relevant bound</option><option value="max_observed">Largest observed checkpoint</option><option value="typical" selected>A typical checkpoint</option><option value="single">One observed checkpoint only</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A typical checkpoint can understate the bandwidth/capacity requirement if checkpoint size varies. The engine will not silently treat “typical” as a qualification bound.</div></div>
+<div class="card s6 field"><label>Largest checkpoint observed or required?</label><input id="ckptUpper" type="number" step=".01" placeholder="Unknown"><div class="hint">TB. If known and larger than the typical value, this becomes the qualification sizing basis.</div></div>
+<div class="card s6 field"><label>How often do you checkpoint?</label><input id="intervalMin" type="number" value="10"><div class="hint">Minutes</div></div>
+<div class="card s6 field"><label>How many local SSDs per node?</label><input id="drives" type="number" value="4"></div>
+<div class="card s6 field"><label>How long do you expect the platform to remain deployed?</label><select id="life"><option value="730">2 years</option><option value="1095" selected>3 years</option><option value="1460">4 years</option><option value="1825">5 years</option></select></div>
+</div>
+<div class="actions"><span></span><button class="primary next">Continue →</button></div>
+</section>
+
+<section class="screen" data-i="1">
+<h1>What matters when something goes wrong?</h1>
+<p class="lead">This tells us what “safe” actually means for your checkpoint. Fast storage and recoverable storage are not always the same thing.</p>
+<div class="grid">
+<div class="card s6 field"><label>What failure do you need the latest checkpoint to survive?</label>
+<select id="failure"><option value="process">A software/process failure</option><option value="accelerator">An accelerator/device failure</option><option value="node" selected>A whole server/node failure</option><option value="rack">A rack-level failure</option><option value="site">A site-level failure</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">This determines whether a checkpoint stored only on the local server is sufficient, or whether another durable copy is required.</div></div>
+<div class="card s6 field"><label>When do you consider a checkpoint safely completed?</label>
+<select id="safe"><option value="local_single" selected>When it exists on local SSD storage</option><option value="local_redundant">When two or more local SSDs in the same server hold it</option><option value="cross_node">When another node/storage service has it</option><option value="cross_rack">When it exists outside the rack</option><option value="cross_site">When it exists outside the site</option><option value="unknown">We haven't defined this yet</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">The answer defines the persistence boundary. The engineering report will retain the technical terminology underneath.</div></div>
+<div class="card s6 field"><label>How long can checkpointing pause or materially affect training?</label><input id="trainingTargetSec" type="number" placeholder="Unknown"><div class="hint">Seconds. This is separate from background storage completion.</div></div>
+<div class="card s6 field"><label>If measured, what is the actual training-visible checkpoint impact?</label><input id="trainingObservedSec" type="number" placeholder="Not measured yet"><div class="hint">Seconds.</div></div>
+<div class="card s6 field"><label>How quickly must the local checkpoint complete?</label><input id="localSec" type="number" value="20"><div class="hint">Seconds. Leave blank if unknown.</div></div>
+<div class="card s6 field"><label>How quickly must a usable recovery copy be available?</label><input id="recoverySec" type="number" placeholder="We don't know yet"><div class="hint">Seconds. Unknown is acceptable.</div></div><div class="card s6 field"><label>If you have measured it, how long does recovery-ready actually take?</label><input id="recoveryObservedSec" type="number" placeholder="Not measured yet"><div class="hint">Seconds. If a target exists but this is unknown, the assessment will keep recovery as unproven.</div></div>
+<div class="card s6 field"><label>What does “successful recovery” mean for this project?</label><select id="recoveryObjective"><option value="unknown">Not formally defined</option><option value="storage_readable">Checkpoint bytes are readable from the required recovery location</option><option value="framework_load">The checkpoint loads successfully in the training framework</option><option value="training_resume" selected>The training job resumes correctly from the checkpoint</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Storage readability is useful evidence, but it is not the same as proving that all required model/optimizer/training state can be restored and training can continue correctly.</div></div>
+<div class="card s6 field"><label>What recovery validation has actually been performed?</label><select id="recoveryValidation"><option value="none">None</option><option value="storage_readable">Files/objects can be opened and read</option><option value="framework_load">Framework load succeeds</option><option value="state_restored">Required model/optimizer/training state restores without error</option><option value="training_resume">Training resumes for a defined smoke-test window</option></select></div>
+<div class="card s6 field"><label>Was recovery tested from a different host/failure location?</label><select id="differentHostRecovery"><option value="unknown">Unknown / not tested</option><option value="no">No — same writer host/path</option><option value="yes">Yes — from the intended recovery location</option></select></div>
+<div class="card s6 field"><label>Were required checkpoint components validated?</label><select id="requiredStateValidated"><option value="unknown">Not formally checked</option><option value="no">No / incomplete</option><option value="yes">Yes — required recovery state is explicitly checked</option></select>
+<div class="hint">Examples may include model, optimizer, scheduler/scaler, RNG/training progress and framework-specific state. The tool does not assume one universal component list.</div></div>
+<div class="card s6 field"><label>Did the resumed job pass a post-restore sanity check?</label><select id="resumeSanity"><option value="unknown">Not tested / not applicable</option><option value="fail">No — restart failed or behaved unexpectedly</option><option value="pass">Yes — defined smoke test passed</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A successful deserialisation/load can still be weaker evidence than proving the application resumes from the expected training state.</div></div>
+<div class="card s6 field"><label>How is the recovery checkpoint selected?</label><select id="selectionPolicy"><option value="unknown">Not formally defined</option><option value="newest">Always choose the newest checkpoint</option><option value="newest_valid" selected>Choose the newest checkpoint that passes validity checks</option><option value="manual">Operator/manual selection</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">The newest checkpoint can be incomplete or corrupt. Some current resiliency frameworks explicitly search for the latest valid checkpoint rather than assuming newest means usable.</div></div>
+<div class="card s6 field"><label>Status of the newest checkpoint generation</label><select id="newestStatus"><option value="unknown">Unknown / not validated</option><option value="valid" selected>Validated usable</option><option value="incomplete">Incomplete / partially published</option><option value="corrupt">Integrity/validation failure</option><option value="load_failed">Framework load failed</option></select></div>
+<div class="card s6 field"><label>If newest is unusable, is an older validated checkpoint available?</label><select id="fallbackStatus"><option value="unknown">Unknown</option><option value="none">No validated fallback</option><option value="valid" selected>Yes — older validated checkpoint exists</option></select></div>
+<div class="card s6 field"><label>How many checkpoint intervals older is the fallback?</label><input id="fallbackGenerations" type="number" value="1"><div class="hint">Used only when fallback is required. This lets the report quantify additional progress loss.</div></div>
+<div class="card s6 field"><label>Checkpoint integrity / completeness evidence</label><select id="integrityEvidence"><option value="unknown">Unknown / none</option><option value="metadata">Framework metadata/completeness check</option><option value="manifest_hash">Manifest / file hash verification</option><option value="load_verified">Framework load validation</option><option value="resume_verified" selected>Successful recovery/resume validation</option></select></div>
+
+<div class="card s6 field"><label>Has the training software/framework version changed since this checkpoint was written?</label><select id="versionChanged"><option value="unknown">Unknown</option><option value="no" selected>No</option><option value="yes">Yes</option></select></div>
+<div class="card s6 field"><label>If software changed, has this exact checkpoint been validated on the current version?</label><select id="versionCompatibility"><option value="unknown">Unknown / not tested</option><option value="no">No — known incompatible</option><option value="yes" selected>Yes — validated on current version</option></select></div>
+<div class="card s6 field"><label>Does a full training resume require optimizer/training-state recovery?</label><select id="optimizerRequired"><option value="unknown">Unknown</option><option value="no">No — weights-only recovery is sufficient</option><option value="yes" selected>Yes — optimizer/training state is required</option></select></div>
+<div class="card s6 field"><label>Has optimizer/training-state compatibility been validated?</label><select id="optimizerCompatible"><option value="unknown">Unknown / not tested</option><option value="no">No — incompatible/missing</option><option value="yes" selected>Yes</option></select></div>
+
+<div class="card s6 field"><label>Has the parallelism/topology changed for recovery?</label><select id="topologyChanged"><option value="unknown">Unknown</option><option value="no" selected>No</option><option value="yes">Yes — e.g. TP/PP/DP or node/GPU layout changed</option></select></div>
+<div class="card s6 field"><label>If topology changed, has the exact recovery path been validated?</label><select id="topologyCompatible"><option value="unknown">Unknown / not tested</option><option value="no">No — known incompatible</option><option value="yes" selected>Yes — recovery validated under target topology</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Some distributed checkpoint formats can reshard across parallel configurations, but that capability is framework/version/format specific and should not be assumed universally.</div></div>
+<div class="card s6 field"><label>Maximum acceptable training progress loss?</label><input id="maxProgressLossMin" type="number" placeholder="Not formally defined"><div class="hint">Minutes. Used to test whether fallback to an older valid checkpoint still meets the business recovery objective.</div></div>
+<div class="card s6 field"><label>Retention / cleanup policy</label><select id="retentionPolicy"><option value="unknown">Unknown / informal</option><option value="count_only">Delete purely by age/count</option><option value="keep_last_valid" selected>Keep last validated checkpoint until a newer one is finalized and validated</option><option value="framework_managed">Framework-managed cleanup of outdated/incomplete checkpoints</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A retention policy can create a recovery gap if the last known-good checkpoint is removed before a newer checkpoint has finished and passed validity checks.</div></div>
+<div class="card s6 field"><label>Can a new async checkpoint start before the previous save has fully finalized?</label><select id="overlappingCheckpoints"><option value="unknown">Unknown</option><option value="no" selected>No</option><option value="yes">Yes — overlapping/in-flight checkpoint saves are possible</option></select></div>
+<div class="card s6 field"><label>If checkpoints overlap, are generation IDs/paths and finalization/cleanup coordination validated?</label><select id="overlapSafety"><option value="unknown">Unknown / not tested</option><option value="no">No — possible overwrite/race</option><option value="yes" selected>Yes — unique generations and coordinated finalization/cleanup</option></select></div>
+<div class="card s6 field"><label>Maximum observed unfinalized/in-flight checkpoint saves</label><input id="maxInflight" type="number" placeholder="Unknown"><div class="hint">Used as operational evidence when async checkpoint requests can queue or overlap.</div></div>
+<div class="card s6 field"><label>Is restored training progress/step explicitly checked against the selected checkpoint?</label><select id="progressIdentity"><option value="unknown">Not checked</option><option value="fail">No — restored progress is wrong/stale</option><option value="pass" selected>Yes — expected checkpoint progress/step matches</option></select></div>
+<div class="card s6 field"><label>Post-restore continuity sanity check</label><select id="continuityCheck"><option value="unknown">Not defined / not checked</option><option value="fail">Failed / unexpected discontinuity</option><option value="pass" selected>Passed project-defined continuity check</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A job can technically restart but resume from stale or semantically wrong state. The tool does not invent a universal loss tolerance; the project must define what continuity means.</div></div>
+<div class="card s6 field"><label>When was checkpoint integrity last verified?</label><select id="integrityFreshness"><option value="unknown">Unknown / never</option><option value="at_save">Only when checkpoint was created</option><option value="before_restore" selected>Re-verified immediately before/at restore</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A checkpoint that was valid when created can still become damaged, incomplete, or missing later. Some checkpoint formats support re-hashing files against a saved manifest at load time.</div></div>
+<div class="card s6 field"><label>Can checkpoint data change after validation?</label><select id="checkpointMutability"><option value="unknown">Unknown</option><option value="immutable" selected>Immutable / protected after finalization</option><option value="mutable">Can be modified, overwritten, or garbage-collected</option></select></div>
+<div class="card s6 field"><label>If mutable, is integrity rechecked at restore?</label><select id="restoreIntegrityCheck"><option value="unknown">Unknown / not tested</option><option value="no">No</option><option value="yes" selected>Yes — current checkpoint contents are verified</option></select></div>
+
+<div class="card s6 field"><label>Can cleanup/deletion run while recovery is reading a checkpoint?</label><select id="cleanupDuringRecovery"><option value="unknown">Unknown</option><option value="no" selected>No — recovery pins/protects the selected generation</option><option value="yes">Yes</option></select></div>
+<div class="card s6 field"><label>If cleanup can overlap recovery, is the selected generation protected?</label><select id="recoveryPinning"><option value="unknown">Unknown / not validated</option><option value="no">No</option><option value="yes" selected>Yes — lease/pin/reference/snapshot protection exists</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">The last-known-good checkpoint can still fail recovery if cleanup removes or mutates it while another host is loading it.</div></div>
+
+<div class="card s6 field"><label>Can a new checkpoint be created while another host is selecting/loading a recovery checkpoint?</label><select id="createDuringRecovery"><option value="unknown">Unknown</option><option value="no" selected>No / recovery and creation are serialized</option><option value="yes">Yes — creation and recovery may overlap</option></select></div>
+<div class="card s6 field"><label>If creation overlaps recovery, is generation visibility atomic/stable?</label><select id="generationVisibility"><option value="unknown">Unknown / not tested</option><option value="no">No — recovery can see partially published generations</option><option value="yes" selected>Yes — only finalized generations enter recovery selection</option></select></div>
+<div class="card s6 field"><label>Does recovery pin the chosen generation after selection?</label><select id="selectionPin"><option value="unknown">Unknown</option><option value="no">No — selection can change underneath recovery</option><option value="yes" selected>Yes — recovery uses one stable generation identity</option></select></div>
+
+<div class="card s6 field"><label>Was semantic continuity checked beyond “the process runs”?</label><select id="semanticDriftCheck"><option value="unknown">Not defined</option><option value="runtime_only">Only confirmed that training continues running</option><option value="project_check" selected>Project-specific state/loss/step continuity check passed</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A restored job can run while still having stale or incorrect application state. SIMMS does not invent a universal acceptable loss delta; it asks whether the project defined and passed a meaningful continuity check.</div></div>
+<div class="card s6 field"><label>Can a rank/node fail while a checkpoint save is in progress?</label><select id="midSaveFailure"><option value="unknown">Unknown / not tested</option><option value="no">No / out of scope</option><option value="yes" selected>Yes — this failure is in scope</option></select></div>
+<div class="card s6 field"><label>If a rank fails mid-save, can the generation still be finalized?</label><select id="partialSavePolicy"><option value="unknown">Unknown</option><option value="abort" selected>No — generation is aborted/not published</option><option value="publish_partial">Yes — remaining ranks may publish it</option><option value="framework_validates">Framework determines validity before publication</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Distributed async checkpoint finalization may require all ranks to finish successfully. A failed rank should not leave a partially written generation looking valid.</div></div>
+<div class="card s6 field"><label>Is finalization based on all-rank success?</label><select id="allRankFinalization"><option value="unknown">Unknown</option><option value="no">No / not enforced</option><option value="yes" selected>Yes — publication waits for distributed success/finalization</option></select></div>
+<div class="card s6 field"><label>Can a network partition or peer-loss occur during save/finalize?</label><select id="partitionDuringSave"><option value="unknown">Unknown</option><option value="no">No / out of scope</option><option value="yes" selected>Yes — tested/in scope</option></select></div>
+<div class="card s6 field"><label>If communication is lost, what happens to checkpoint finalization?</label><select id="partitionOutcome"><option value="unknown">Unknown / not tested</option><option value="fail_closed" selected>Generation remains unfinalized / recovery-ineligible</option><option value="split_visibility">Some ranks/hosts may treat it as finalized</option></select></div>
+<div class="card s6 field"><label>Can different recovery hosts disagree about which generation is finalized?</label><select id="visibilityConsensus"><option value="unknown">Unknown / not tested</option><option value="no" selected>No — finalized-generation view is consistent</option><option value="yes">Yes / observed inconsistency</option></select></div>
+<div class="card s6 field"><label>Shared/durable tier availability during checkpoint</label><select id="sharedAvailability"><option value="unknown">Unknown / not tested</option><option value="available" selected>Available</option><option value="degraded">Degraded / partially available</option><option value="unavailable">Unavailable</option></select></div>
+<div class="card s6 field"><label>When shared storage is degraded/unavailable, is local completion allowed to be called recovery-ready?</label><select id="degradedSemantics"><option value="unknown">Unknown</option><option value="no" selected>No — recovery-ready waits for required durable domain</option><option value="yes">Yes</option></select></div>
+<div class="card s6 field"><label>Can the scheduler/launcher automatically restart the training job after failure?</label><select id="autoRestart"><option value="unknown">Unknown</option><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Before restart, does orchestration wait for/select only a finalized valid checkpoint?</label><select id="restartCheckpointGate"><option value="unknown">Unknown / not tested</option><option value="no">No — restart may race checkpoint finalization</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Can a preemption/termination signal arrive while async checkpoint work is still in flight?</label><select id="terminationDuringSave"><option value="unknown">Unknown</option><option value="no">No / out of scope</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>On termination, what happens to in-flight async checkpoint work?</label><select id="terminationPolicy"><option value="unknown">Unknown</option><option value="abort_safe">Abort/mark incomplete; never publish as valid</option><option value="finalize_before_exit" selected>Gracefully finalize before exit</option><option value="exit_immediate">Exit immediately / state unknown</option></select></div>
+<div class="card s6 field"><label>Does the restart process pin the exact checkpoint generation before workers launch?</label><select id="restartGenerationPin"><option value="unknown">Unknown</option><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Can multiple restart attempts overlap or use different checkpoint generations?</label><select id="restartOverlap"><option value="unknown">Unknown</option><option value="no" selected>No / serialized</option><option value="yes">Yes</option></select></div>
+<div class="card s6 field"><label>If restarts can overlap, is one authoritative recovery generation enforced?</label><select id="restartConsensus"><option value="unknown">Unknown</option><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Can scheduler restart occur before checkpoint storage/remapping is visible to the new allocation?</label><select id="restartVisibilityRace"><option value="unknown">Unknown</option><option value="no" selected>No / visibility is gated</option><option value="yes">Yes</option></select></div>
+
+<div class="card s12">
+<h2 style="margin-top:0">Deployment & vendor qualification</h2>
+<p class="small">This section separates what physically fits, what the server/OEM supports, what the vendor can prove on paper, and what must be tested against the checkpoint workload.</p>
+</div>
+<div class="card s6 field"><label>Project deployment state</label><select id="deploymentState"><option value="greenfield">Greenfield / no incumbent</option><option value="existing" selected>Existing deployment</option><option value="expansion">Expansion</option><option value="replacement">Replacement / remediation</option><option value="second_source">Second-source qualification</option><option value="unknown">Unknown</option></select></div>
+<div class="card s6 field"><label>Server / platform OEM + exact model</label><input id="serverModel" value="Exact OEM/server model recorded"></div>
+<div class="card s4 field"><label>Required SSD form factor</label><select id="requiredFormFactor"><option value="u2" selected>U.2 / 2.5-inch NVMe</option><option value="u3">U.3 / 2.5-inch NVMe</option><option value="e1s">E1.S</option><option value="e3s">E3.S</option><option value="m2">M.2</option><option value="aic">PCIe add-in card</option><option value="other">Other</option><option value="unknown">Unknown</option></select></div>
+<div class="card s4 field"><label>Required PCIe generation</label><select id="requiredPcieGen"><option value="4">PCIe 4.0</option><option value="5" selected>PCIe 5.0</option><option value="6">PCIe 6.0</option><option value="unknown">Unknown</option></select></div>
+<div class="card s4 field"><label>Required lanes per device</label><select id="requiredLanes"><option value="1">x1</option><option value="2">x2</option><option value="4" selected>x4</option><option value="8">x8</option><option value="unknown">Unknown</option></select></div>
+<div class="card s6 field"><label>Available bays/slots per node</label><input id="availableBays" type="number" value="8"></div>
+<div class="card s6 field"><label>Backplane / carrier / adapter configuration</label><input id="backplaneConfig" value="Exact NVMe backplane/carrier configuration recorded"></div>
+<div class="card s6 field"><label>Platform power/cooling envelope for proposed drive</label><select id="powerCoolingFit"><option value="unknown">Unknown / not checked</option><option value="fits" selected>Within platform envelope</option><option value="conditional">Requires fan/thermal/configuration change</option><option value="fails">Outside supported envelope</option></select></div>
+<div class="card s6 field"><label>Current deployed SSD MPN + firmware</label><input id="incumbentDrive" value="Incumbent exact MPN + firmware recorded"><div class="hint">Use N/A for greenfield.</div></div>
+<div class="card s6 field"><label>Candidate vendor + exact SSD MPN</label><input id="candidateMpn" value="Candidate exact MPN recorded"></div>
+<div class="card s6 field"><label>Candidate firmware</label><input id="candidateFirmware" value="Candidate firmware recorded"></div>
+<div class="card s4 field"><label>Candidate form factor</label><select id="candidateFormFactor"><option value="u2" selected>U.2 / 2.5-inch NVMe</option><option value="u3">U.3 / 2.5-inch NVMe</option><option value="e1s">E1.S</option><option value="e3s">E3.S</option><option value="m2">M.2</option><option value="aic">PCIe add-in card</option><option value="other">Other</option><option value="unknown">Unknown</option></select></div>
+<div class="card s4 field"><label>Candidate PCIe generation</label><select id="candidatePcieGen"><option value="4">PCIe 4.0</option><option value="5" selected>PCIe 5.0</option><option value="6">PCIe 6.0</option><option value="unknown">Unknown</option></select></div>
+<div class="card s4 field"><label>Candidate lanes</label><select id="candidateLanes"><option value="1">x1</option><option value="2">x2</option><option value="4" selected>x4</option><option value="8">x8</option><option value="unknown">Unknown</option></select></div>
+<div class="card s6 field"><label>Candidate capacity (TB)</label><input id="candidateCapacityTB" type="number" value="7.68"></div>
+<div class="card s6 field"><label>OEM/server support / AVL status for this exact candidate</label><select id="avlStatus"><option value="unknown">Unknown / not checked</option><option value="listed" selected>Listed/supported for exact server/configuration</option><option value="conditional">Listed with configuration/firmware conditions</option><option value="not_listed">Not listed / unsupported</option><option value="vendor_claim">Vendor says supported, OEM evidence not supplied</option></select></div>
+<div class="card s6 field"><label>OEM support/AVL evidence reference</label><input id="avlEvidenceRef" value="OEM support matrix / AVL reference recorded"></div>
+<div class="card s6 field"><label>Physical/electrical fit evidence</label><select id="fitEvidence"><option value="unknown">Unknown</option><option value="datasheet">Datasheet + server configuration evidence</option><option value="oem" selected>OEM/server documentation confirms fit</option><option value="tested">Installed/tested in target configuration</option></select></div>
+<div class="card s6 field"><label>Candidate performance evidence source</label><select id="vendorPerfSource"><option value="unknown">Unknown / unsupported claim</option><option value="datasheet">Public datasheet</option><option value="vendor_spec">Vendor specification / engineering response</option><option value="vendor_test">Vendor workload-specific test</option><option value="joint_test" selected>Joint/customer production-like qualification</option></select></div>
+<div class="card s6 field"><label>Candidate endurance evidence source</label><select id="enduranceSource"><option value="unknown">Unknown</option><option value="datasheet" selected>Datasheet / published endurance spec</option><option value="vendor_spec">Vendor engineering specification</option><option value="vendor_calc">Vendor calculation against supplied workload</option><option value="joint_test">Joint qualification</option></select></div>
+<div class="card s6 field"><label>Can a vendor “yes/compliant” be accepted without evidence?</label><select id="unsupportedVendorYes"><option value="no" selected>No</option><option value="yes">Yes</option></select></div>
+<div class="card s6 field"><label>How many checkpoint generations must the local tier retain?</label><input id="retainedGenerations" type="number" value="2"></div>
+<div class="card s6 field"><label>Usable free capacity currently available across the local checkpoint tier</label><input id="localFreeTB" type="number" value="20"><div class="hint">TB, decimal. Use usable free space, not raw device capacity.</div></div>
+<div class="card s6 field"><label>Explicit capacity reserve policy</label><input id="capacityReservePct" type="number" value="20"><div class="hint">Percent. This is your policy, not a SIMMS industry constant.</div></div>
+<div class="card s6 field"><label>Filesystem metadata/inode headroom</label><select id="metadataHeadroom"><option value="unknown">Unknown / not checked</option><option value="adequate" selected>Adequate at target checkpoint file count</option><option value="exhausted">Exhausted / risk observed</option></select></div>
+<div class="card s6 field"><label>Quota / allocation headroom</label><select id="quotaHeadroom"><option value="unknown">Unknown / not checked</option><option value="adequate" selected>Adequate</option><option value="insufficient">Insufficient / quota can block checkpoint</option></select></div>
+<div class="card s6 field"><label>Has performance been qualified at the maximum permitted fill level?</label><select id="highFillQualified"><option value="unknown">Unknown / not tested</option><option value="no">No</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Maximum simultaneous training jobs that can checkpoint onto this same path</label><input id="simultaneousJobs" type="number" value="1"></div>
+<div class="card s6 field"><label>Are those checkpoint bursts deliberately staggered?</label><select id="checkpointStaggered"><option value="unknown">Unknown</option><option value="no">No / may coincide</option><option value="yes" selected>Yes / aggregate concurrency is controlled</option></select></div>
+<div class="card s6 field"><label>Evidence reference for measured workload distribution</label><input id="distributionEvidenceRef" value="trace-run-001"><div class="hint">Example: telemetry run ID, dashboard/export, trace file or internal test reference.</div></div>
+<div class="card s6 field"><label>Evidence reference for representative I/O trace</label><input id="ioEvidenceRef" value="io-trace-001"></div>
+<div class="card s6 field"><label>Evidence reference for recovery validation</label><input id="recoveryEvidenceRef" value="recovery-run-001"></div>
+<div class="card s6 field"><label>Evidence reference for production-chassis thermal qualification</label><input id="thermalEvidenceRef" value="thermal-run-001"></div>
+<div class="card s6 field"><label>Evidence reference for version/topology compatibility claims</label><input id="compatibilityEvidenceRef" value="compat-run-001"></div>
+<div class="card s6 field"><label>Candidate performance evidence basis</label><select id="candidatePerfEvidence"><option value="unknown">Unknown / none</option><option value="datasheet">Vendor datasheet only</option><option value="vendor_test">Vendor test with disclosed conditions</option><option value="production_like" selected>Production-like qualification test</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">A vendor claim can inform candidate selection but should not silently become proof that the exact MPN/firmware meets the workload in your topology.</div></div>
+<div class="card s6 field"><label>Does the evidence identify the exact candidate MPN + firmware?</label><select id="exactCandidateEvidence"><option value="unknown">Unknown</option><option value="no">No / family-level only</option><option value="yes" selected>Yes</option></select></div>
+<div class="card s6 field"><label>Evidence review status</label><select id="evidenceReview"><option value="unknown">Not reviewed</option><option value="self_asserted">Answer asserted without linked evidence</option><option value="linked" selected>Evidence linked/recorded</option><option value="peer_reviewed">Evidence reviewed by another engineer</option></select></div>
+</div>
+<div id="plainGap" class="callout danger hidden"><strong>Potential protection gap:</strong> you said the checkpoint must survive a server failure, but you currently consider it complete while it is still only on that server's local storage. We should validate the durable/recovery path before treating the design as protected.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="primary next">What do you know today? →</button></div>
+</section>
+
+<section class="screen" data-i="2">
+<h1>What do you already know?</h1>
+<p class="lead">You do not need a storage engineer's dataset to use the assessment. Tell us whether you have evidence; we'll separate facts from assumptions.</p>
+<div class="grid">
+<div class="card s6">
+<h3>Are checkpoint writes spread evenly across the SSDs?</h3>
+<div class="choice">
+<label><input type="radio" name="spread" value="measured">Yes — we have measurements</label>
+<label><input type="radio" name="spread" value="believe" checked>We think so, but haven't measured it</label>
+<label><input type="radio" name="spread" value="unknown">We don't know</label>
+</div>
+<div id="shareWrap" class="field hidden" style="margin-top:12px"><label>Worst measured SSD received what % of the checkpoint?</label><input id="share" type="number" step=".01" value="7"></div>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">An average can hide one SSD receiving much more data than the others. That changes both bandwidth and host-write requirements.</div>
+</div>
+<div class="card s6">
+<h3>Do you have a real checkpoint I/O trace or equivalent measurements?</h3>
+<div class="choice">
+<label><input type="radio" name="trace" value="yes">Yes</label>
+<label><input type="radio" name="trace" value="no" checked>No</label>
+</div>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Request sizes and concurrency can materially affect SSD behaviour. The tool will not invent them from the word “checkpoint”.</div>
+</div>
+<div class="card s6 field"><label>How many representative checkpoint cycles does that evidence cover?</label><input id="telemetryCycles" type="number" placeholder="Unknown"><div class="hint">There is no universal magic number. We use this to distinguish a spot measurement from evidence you consider representative.</div></div>
+<div class="card s6 field"><label>Is the telemetry representative of the production state you want to qualify?</label><select id="telemetryRepresentative"><option value="unknown">We don't know</option><option value="no">No — spot/sample only</option><option value="yes">Yes — representative window</option></select></div>
+<div class="card s6 field"><label>How does the application team define “checkpoint complete”?</label><select id="appComplete"><option value="unknown">Not formally defined</option><option value="staged">State staged / training can continue</option><option value="files_written">Checkpoint files written</option><option value="local_stable">Local stable-storage boundary reached</option><option value="recovery_ready">Usable recovery copy available</option></select></div>
+<div class="card s6 field"><label>How does the storage/platform team define “safe”?</label><select id="storageSafe"><option value="unknown">Not formally defined</option><option value="files_written">Writes returned / files exist</option><option value="local_stable">Stable-storage boundary reached</option><option value="recovery_ready">Usable recovery copy available</option></select></div>
+<div class="card s6 field"><label>What form does the checkpoint take?</label><select id="checkpointFormat"><option value="unknown">We don't know</option><option value="multi_file" selected>Distributed / multiple files plus metadata</option><option value="single_file">Single checkpoint file/object</option><option value="custom">Custom format</option></select><div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Distributed checkpoint frameworks may create multiple files plus metadata. Publication/completeness semantics can therefore matter separately from the durability of any one data file.</div></div>
+<div class="card s6 field"><label>How is a complete checkpoint published?</label><select id="publication"><option value="unknown">We don't know</option><option value="files_only">Data files are flushed/synced; metadata/publication semantics not verified</option><option value="metadata_durable">Checkpoint metadata/manifest/publication is also durably completed</option><option value="recovery_verified">A newly written checkpoint is recovery-tested from the intended recovery location</option></select>
+<div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">For multi-file checkpoints, “the data files were written” may not be the same as “a complete, discoverable checkpoint is durably published”. Linux fsync of a file also does not necessarily persist the containing directory entry.</div></div>
+<div class="card s6 field"><label>How are the local SSDs arranged?</label><select id="layout"><option value="stripe" selected>Striped for performance / no local redundancy</option><option value="redundant">Locally redundant</option><option value="unknown">We don't know</option></select></div>
+<div class="card s6 field"><label>Is there a later copy to shared or durable storage?</label><select id="shared"><option value="yes" selected>Yes</option><option value="no">No</option><option value="unknown">We don't know</option></select></div>
+<div class="card s6 field"><label>Does checkpoint writing block training?</label><select id="mode"><option value="unknown">We don't know</option><option value="sync" selected>Yes — checkpoint completes before training continues</option><option value="async">No / mostly no — checkpoint is staged asynchronously</option></select><div class="why" onclick="toggleWhy(this)">Why are we asking?</div><div class="whytext">Async checkpointing can move pressure from the training pause into host memory and background I/O. The engine treats staging capacity as a separate constraint.</div></div>
+<div class="card s6 field"><label>Known host-memory headroom for checkpoint staging?</label><input id="stagingGB" type="number" placeholder="Unknown"><div class="hint">GB per node. Only used for asynchronous checkpointing.</div></div>
+<div class="card s6 field"><label>Known end-to-end write-path ceiling?</label><input id="pathCeiling" type="number" placeholder="Unknown"><div class="hint">GB/s for the cluster path. If known, the requirement must fit below it.</div></div>
+<div class="card s6 field"><label>Do you have production-chassis thermal evidence for the exact candidate?</label><select id="thermal"><option value="no" selected>No / not yet</option><option value="yes">Yes</option></select></div>
+</div>
+<div class="callout info"><strong>What happens to unknowns?</strong> We don't mark you wrong. We turn each important unknown into a measurement, supplier question, or qualification test.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="primary next">Review what we'll assume →</button></div>
+</section>
+
+<section class="screen" data-i="3">
+<h1>Before we calculate anything</h1>
+<div class="callout info"><strong>Environment dependency check:</strong> checkpoint measurements and qualification evidence are only valid for the configuration they were captured against. If framework/version, checkpoint format, parallelism, platform, storage path, scheduler, or candidate SSD changes later, the tool should invalidate only the dependent evidence rather than silently reusing it.</div>
+<p class="lead">Here is what the assessment believes it knows, what it is assuming for preliminary modelling, and what remains unresolved.</p>
+<div class="grid">
+<div class="card s4"><span class="chip green">KNOWN</span><h2>What you've told us</h2><div id="known"></div></div>
+<div class="card s4"><span class="chip amber">ASSUMPTIONS</span><h2>What we're modelling</h2><div id="assumptions"></div></div>
+<div class="card s4"><span class="chip red">UNRESOLVED</span><h2>What still matters</h2><div id="unknown"></div></div>
+</div>
+<div class="callout warn"><strong>Important:</strong> assumptions are allowed to help create a preliminary requirement, but they never silently become facts. Measurements supersede them.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="primary" id="resultsBtn">Show my assessment →</button></div>
+</section>
+
+<section class="screen" data-i="4">
+<h1>Your AI storage readiness assessment</h1>
+<p class="lead">Executive view first. The engineering evidence is available underneath every conclusion.</p>
+<div class="result-hero">
+<div class="result-status" id="readinessLabel">MORE EVIDENCE NEEDED BEFORE SSD SELECTION</div>
+<div class="result-title" id="headline">You can define part of the requirement today, but important qualification gaps remain.</div>
+<p class="lead" style="margin-bottom:0" id="heroText">The assessment has separated what is defensible now from what still needs evidence.</p>
+</div>
+
+<div class="proof">
+<div class="p"><div class="pk">ENGINE STATE</div><div class="pv engine-state" id="engineState">—</div></div>
+<div class="p"><div class="pk">BLOCKING ISSUES</div><div class="pv" id="blockCount">0</div></div>
+<div class="p"><div class="pk">MEASUREMENTS NEEDED</div><div class="pv" id="measureCount">0</div></div>
+<div class="p"><div class="pk">QUALIFICATION TESTS</div><div class="pv" id="testCount">0</div></div>
+</div>
+<h2>Environment dependency summary</h2>
+<div id="environmentSummary" class="card"></div>
+<h2>Vendor RFI / evidence plan</h2><div id="vendorRfi" class="card"></div>
+<h2>What we learned</h2>
+<div id="findings"></div>
+<h2>Why the engine is telling you this</h2>
+<div id="ruleExplanations"></div>
+
+<h2>What you can specify today</h2>
+<div class="metrics">
+<div class="metric"><div class="k">Minimum cluster checkpoint write rate</div><div class="v" id="clusterBW">—</div><div class="small">Defensible from checkpoint size + completion target.</div></div>
+<div class="metric"><div class="k">Preliminary SSD contribution</div><div class="v" id="driveBW">—</div><div class="small" id="driveBasis">Based on an explicit equal-share assumption.</div></div>
+<div class="metric"><div class="k">Estimated host writes / SSD / day</div><div class="v" id="writesDay">—</div><div class="small">Host writes—not NAND wear.</div></div>
+</div>
+
+<h2>What should you do next?</h2>
+<div class="card steps" id="nextSteps"></div>
+
+<details>
+<summary>Show the engineering evidence</summary>
+<div>
+<table><thead><tr><th>Engineering requirement</th><th>Result</th><th>Basis</th></tr></thead><tbody id="techTable"></tbody></table>
+<div class="callout warn"><strong>Host DWPD is not a drive recommendation.</strong> It normalises host writes against drive capacity; it does not establish NAND wear or tell you which endurance class to buy.</div>
+</div>
+</details>
+<div class="actions"><button class="secondary prev">← Back</button><button class="primary next">Create my action plan →</button></div>
+</section>
+
+<section class="screen" data-i="5">
+<h1>Your action plan</h1>
+<p class="lead">This is the practical output: what to measure internally, what to ask suppliers, and what must be proven before deployment.</p>
+<div class="grid" id="actionCards"></div>
+<h2>When are you ready to approach SSD suppliers?</h2>
+<div class="callout good" id="supplierReady"><strong>You can start supplier conversations now</strong> using the preliminary requirement, provided the RFI clearly labels bounded values and asks suppliers for evidence rather than accepting headline specifications.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="primary next">Generate supplier brief →</button></div>
+</section>
+
+<section class="screen" data-i="6">
+<h1>Supplier qualification brief</h1>
+<p class="lead">A vendor-neutral brief you can use to start a technically meaningful conversation without pretending the SSD has already been selected.</p>
+<div class="rfi">
+<h2>AI Training Checkpoint Storage — Qualification Brief</h2>
+<p><strong>Environment:</strong> <span id="rfiProject"></span></p>
+<p><strong>Checkpoint:</strong> <span id="rfiCkpt"></span> every <span id="rfiInterval"></span></p>
+<p><strong>Required local completion:</strong> <span id="rfiLocal"></span></p>
+<p><strong>Preliminary device contribution:</strong> <span id="rfiDrive"></span></p>
+<p><strong>Estimated host writes/device/day:</strong> <span id="rfiWrites"></span></p>
+<div class="callout warn"><strong>Qualification status:</strong> these figures may contain explicitly bounded assumptions. Supplier response does not constitute technical qualification.</div>
+<h3>Please provide evidence for the exact candidate</h3>
+<p class="small">Exact manufacturer / MPN / capacity / form factor · firmware revision and change control · sustained-write performance and complete test conditions · latency/QoS with block size, mix, QD and state · endurance rating and complete basis · PLP and data-path protection · power and thermal limits · standard/enhanced NVMe telemetry · lifecycle, PCN and EOL policy · qualification samples and production availability.</p>
+<h3>Response status for each requirement</h3>
+<p class="small"><b>PASS · FAIL · NOT SUPPORTED · EVIDENCE NOT AVAILABLE</b></p>
+</div>
+<div class="callout good"><strong>Where SIMMS becomes relevant:</strong> if you want help turning this requirement into an exact candidate shortlist, checking firmware/lifecycle risk, or independently qualifying second-source options, that is the natural next stage—not a prerequisite for using the free assessment.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="secondary" onclick="window.print()">Print / save assessment</button><button class="primary" onclick="show(7)">Break CheckpointFit / give feedback →</button></div>
+</section>
+<section class="screen" data-i="7">
+<h1>Break CheckpointFit — research feedback</h1>
+<p class="lead">You do not need to debate the engineering with us. Challenge the assessment here in your own words. If possible, tell us what evidence you would use to verify your correction.</p>
+
+<div class="callout info"><strong>Research principle:</strong> your £125 participation voucher is for completing the research, not for positive feedback. Mark something wrong if you believe it is wrong. Please anonymise customer/project names and confidential information.</div>
+
+<div class="grid">
+<div class="card s6 field"><label>Participant reference</label><input id="researchParticipant" placeholder="e.g. TEST-001"></div>
+<div class="card s6 field"><label>Your role</label><input id="researchRole" placeholder="e.g. AI infrastructure engineer"></div>
+<div class="card s6 field"><label>Your perspective</label><select id="researchPerspective"><option value="">Select</option><option>End-user / operator</option><option>Consultancy / integrator</option><option>OEM</option><option>SSD / storage vendor</option><option>Other</option></select></div>
+<div class="card s6 field"><label>Project context (anonymised)</label><input id="researchProject" placeholder="Short description only"></div>
+<div class="card s4 field"><label>Normal desk time for equivalent assessment (hours)</label><input id="researchManualHours" type="number" step=".25" placeholder="Before using SIMMS"></div>
+<div class="card s4 field"><label>Additional desk work still required (hours)</label><input id="researchFollowupHours" type="number" step=".25" placeholder="Exclude passive waiting"></div>
+<div class="card s4 field"><label>Original decision confidence</label><select id="researchOriginalConfidence"><option value="">Select 1–5</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+</div>
+
+<h2>How available was the information?</h2>
+<p class="small">Count roughly how the questions fell. Exact totals are less important than showing where the information normally comes from.</p>
+<div class="grid">
+<div class="card s3 field"><label>Know now</label><input id="availKnow" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Internal lookup</label><input id="availLookup" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Another team/person</label><input id="availTeam" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Vendor/OEM</label><input id="availVendor" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Needs measurement/test</label><input id="availMeasure" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Not relevant</label><input id="availIrrelevant" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Didn't understand</label><input id="availUnclear" type="number" min="0" value="0"></div>
+<div class="card s3 field"><label>Evidence source unclear</label><input id="availEvidence" type="number" min="0" value="0"></div>
+</div>
+
+<h2>Attack the outputs</h2>
+<p class="small">For each area, give your verdict. “Materially wrong” means it could change a requirement, test, RFI or investigation. “Dangerous” means it could materially mislead a real infrastructure decision.</p>
+<div id="researchAreas"></div>
+
+<h2>Overall verdict</h2>
+<div class="grid">
+<div class="card s4 field"><label>Overall technical credibility</label><select id="overallCredibility"><option value="">1–5</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+<div class="card s4 field"><label>Could another engineer use this as an input to a real decision?</label><select id="decisionUse"><option value="">Select</option><option>Yes</option><option>Yes, with caveats</option><option>No</option></select></div>
+<div class="card s4 field"><label>Did it make the next action clearer?</label><select id="nextActionClearer"><option value="">1–5</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+<div class="card s6 field"><label>Did SIMMS surface a material issue/dependency/evidence gap that was not already explicit?</label><select id="materialFinding"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+<div class="card s6 field"><label>Compared with your normal approach</label><select id="workEffect"><option value="">Select</option><option>Creates substantial extra work</option><option>Creates some extra work</option><option>About the same</option><option>Saves some work</option><option>Saves substantial work</option></select></div>
+<div class="card s6 field"><label>If completely free, would you use CheckpointFit on your next relevant project?</label><select id="useAgain"><option value="">Select</option><option>Definitely yes</option><option>Probably yes</option><option>Unsure</option><option>Probably no</option><option>Definitely no</option></select></div>
+<div class="card s6 field"><label>Would you share the output internally?</label><select id="shareInternal"><option value="">Select</option><option>Yes</option><option>Maybe</option><option>No</option></select></div>
+<div class="card s6 field"><label>Would you use the vendor RFI/evidence plan?</label><select id="useRfi"><option value="">Select</option><option>Yes as-is</option><option>Yes after editing</option><option>No</option></select></div>
+<div class="card s6 field"><label>Most useful stage</label><select id="useStage"><option value="">Select</option><option>Early architecture</option><option>Design review</option><option>Procurement</option><option>Candidate qualification</option><option>Troubleshooting/remediation</option><option>Second-source qualification</option><option>Other</option></select></div>
+<div class="card s12 field"><label>Why would you / wouldn't you use it again?</label><textarea id="useAgainWhy" rows="4" placeholder="Please be candid."></textarea></div>
+<div class="card s12 field"><label>What was the first point where you stopped trusting CheckpointFit?</label><textarea id="trustBreak" rows="3"></textarea></div>
+<div class="card s12 field"><label>What important thing did CheckpointFit fail to ask?</label><textarea id="missingQuestion" rows="3"></textarea></div>
+<div class="card s12 field"><label>Which output would you keep? Which would you delete?</label><textarea id="keepDelete" rows="3"></textarea></div>
+<div class="card s12 field"><label>Anything else we should know?</label><textarea id="researchOther" rows="3"></textarea></div>
+</div>
+
+<div class="callout info"><strong>Research submission:</strong> when this pilot is connected to its secure backend, “Submit feedback securely” sends the structured research response to the study database. “Export feedback” remains available as a fallback. Please anonymise customer/project names and confidential information.</div>
+<div class="actions"><button class="secondary prev">← Back</button><button class="secondary" onclick="saveResearchDraftHosted()">Save draft</button><button class="secondary" onclick="exportResearch()">Export feedback (.json)</button><button class="primary" onclick="submitResearchHosted()">Submit feedback securely</button></div>
+<div id="researchReceipt" class="callout good hidden"></div>
+</section>
+</main>
+</div>
+<script>
+const names=["Your environment","What must survive","What you know","Assumptions","Your assessment","Action plan","Supplier brief","Break CheckpointFit"];
+let current=0; const nav=document.getElementById("nav");
+names.forEach((n,i)=>{let b=document.createElement("button");b.textContent=n;b.onclick=()=>show(i);nav.appendChild(b)});
+function show(i){current=i;document.querySelectorAll(".screen").forEach((e,j)=>e.classList.toggle("active",j===i));document.querySelectorAll("nav button").forEach((e,j)=>e.classList.toggle("active",j===i));document.getElementById("crumb").textContent="Assessment / "+names[i];if(i===3)review();if(i===4)results();if(i===5)actions();if(i===6)rfi();if(i===7)initResearch();window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll(".next").forEach(b=>b.onclick=()=>show(Math.min(7,current+1)));document.querySelectorAll(".prev").forEach(b=>b.onclick=()=>show(Math.max(0,current-1)));document.getElementById("resultsBtn").onclick=()=>show(4);
+function toggleWhy(e){let t=e.nextElementSibling;t.style.display=t.style.display==="block"?"none":"block"}
+function n(id){let v=parseFloat(document.getElementById(id).value);return isFinite(v)?v:0}function t(id){return document.getElementById(id).value}
+function radio(name){let e=document.querySelector(`input[name="${name}"]:checked`);return e?e.value:""}
+document.querySelectorAll('input[name="spread"]').forEach(x=>x.onchange=()=>{document.getElementById("shareWrap").classList.toggle("hidden",radio("spread")!=="measured")});
+
+const failureLevel={process:1,accelerator:2,node:3,rack:4,site:5};
+const persistenceLevel={local_single:2,local_redundant:2,cross_node:3,cross_rack:4,cross_site:5,unknown:0};
+
+
+const ENV_DEPENDENCY_RULES=[
+ {fields:["modelFamily","modelParamsB","checkpointStateProfile","trainingPrecision"],invalidate:["checkpoint-size evidence","host-write model","capacity model"],reason:"Saved state volume/composition may change."},
+ {fields:["frameworkStack","frameworkVersion","checkpointLibrary","checkpointStackFormat"],invalidate:["publication semantics","recovery validity","async semantics","version compatibility"],reason:"Save/load/publication behaviour is software/version/format scoped."},
+ {fields:["mode"],invalidate:["training-visible timing","host staging evidence","concurrent-save evidence"],reason:"Sync/async modes have different critical paths."},
+ {fields:["nodes","acceleratorsPerNode","dpDegree","tpDegree","ppDegree","parallelSave"],invalidate:["per-drive distribution","I/O trace representativeness","writer concurrency","recovery topology evidence"],reason:"Rank/shard/writer distribution can change."},
+ {fields:["acceleratorType"],invalidate:["training-visible measurement","staging measurement","platform performance evidence"],reason:"Platform timing/staging evidence is hardware scoped."},
+ {fields:["layout","filesystem","sharedBackend","networkFabric"],invalidate:["persistence semantics","local/shared performance","recovery visibility evidence"],reason:"Storage path/backend/fabric changed."},
+ {fields:["schedulerStack","schedulerConfig"],invalidate:["restart semantics","preemption evidence","scheduler recovery evidence"],reason:"Orchestrator behaviour is configuration scoped."}
+];
+const envValue=id=>document.getElementById(id)?.value?.trim()??"";
+function environmentFingerprint(){
+ return {
+  workloadType:envValue("workloadType"),modelFamily:envValue("modelFamily"),modelParamsB:envValue("modelParamsB"),
+  frameworkStack:envValue("frameworkStack"),frameworkVersion:envValue("frameworkVersion"),checkpointLibrary:envValue("checkpointLibrary"),
+  checkpointStackFormat:envValue("checkpointStackFormat"),checkpointStateProfile:envValue("checkpointStateProfile"),
+  trainingPrecision:envValue("trainingPrecision"),acceleratorType:envValue("acceleratorType"),acceleratorsPerNode:envValue("acceleratorsPerNode"),
+  dpDegree:envValue("dpDegree"),tpDegree:envValue("tpDegree"),ppDegree:envValue("ppDegree"),parallelSave:envValue("parallelSave"),
+  nodes:envValue("nodes"),layout:envValue("layout"),sharedBackend:envValue("sharedBackend"),networkFabric:envValue("networkFabric"),
+  schedulerStack:envValue("schedulerStack"),schedulerConfig:envValue("schedulerConfig")
+ };
+}
+function environmentAssessment(){
+ const fp=environmentFingerprint(), warnings=[], actions=[], facts=[];
+ if(!fp.frameworkVersion)warnings.push("Exact framework/software version is not recorded.");
+ if(fp.frameworkStack==="unknown"||fp.checkpointLibrary==="unknown"||fp.checkpointStackFormat==="unknown")warnings.push("Checkpoint software/format is not fully decided.");
+ if(!fp.modelParamsB)warnings.push("Model scale is not recorded; checkpoint-size evidence must come from measurement/design input.");
+ if(fp.checkpointStateProfile==="unknown")warnings.push("State required in the checkpoint is not defined.");
+ if(!fp.acceleratorsPerNode||!fp.dpDegree||!fp.tpDegree||!fp.ppDegree)warnings.push("Parallel/rank topology is incomplete.");
+ if(!fp.sharedBackend)warnings.push("Shared/durable storage backend is not recorded.");
+ if(fp.schedulerStack==="unknown"||!fp.schedulerConfig)warnings.push("Scheduler restart/preemption environment is not fully recorded.");
+ facts.push("Model name/accelerator brand never create an exact checkpoint-size requirement by themselves.");
+ facts.push("Framework/version/format determine which documented save/load/publication behaviours are safe to rely on.");
+ facts.push("Parallelism, node/rank layout and parallel-save configuration scope per-drive distribution and I/O-trace evidence.");
+ facts.push("Storage backend/network/platform choices scope durability, visibility and performance evidence.");
+ return {fingerprint:fp,warnings,actions,facts};
+}
+function environmentChangeImpact(before,after){
+ const changed=[];
+ for(const [k,v] of Object.entries(after)){if(String(before?.[k]??"")!==String(v??""))changed.push(k);}
+ let invalidated=[];
+ ENV_DEPENDENCY_RULES.forEach(r=>{
+   if(r.fields.some(f=>changed.includes(f)))invalidated.push({fields:r.fields.filter(f=>changed.includes(f)),evidence:r.invalidate,reason:r.reason});
+ });
+ return {changed,invalidated};
+}
+
+function engine(){
+ let errors=[],blockers=[],warnings=[],tests=[],actions=[],metrics={};
+ let env=environmentAssessment();
+ env.warnings.forEach(x=>warnings.push(x));
+ const raw=id=>document.getElementById(id)?.value?.trim()??"";
+ const parsePositive=(id,label,required=false)=>{
+   let s=raw(id);
+   if(s===""){if(required)blockers.push(`${label} is missing.`);return null}
+   let v=Number(s);
+   if(!Number.isFinite(v)||v<=0){errors.push(`${label} must be a positive number.`);return null}
+   return v;
+ };
+ let nodes=parsePositive("nodes","Node count",true),
+     drives=parsePositive("drives","SSDs per node",true),
+     ckEntered=parsePositive("ckpt","Checkpoint size",true),
+     ckUpper=parsePositive("ckptUpper","Largest checkpoint bound",false),
+     interval=parsePositive("intervalMin","Checkpoint interval",true),
+     sec=parsePositive("localSec","Local-stable completion target",true);
+ let ckBasis=t("ckptBasis"), ck=ckEntered;
+ if(ckUpper!==null&&ckEntered!==null&&ckUpper<ckEntered)errors.push("Largest checkpoint bound cannot be smaller than the entered checkpoint size.");
+ if(ckUpper!==null&&ckEntered!==null&&ckUpper>=ckEntered){ck=ckUpper;metrics.checkpointSizingBasis="upper_bound";}
+ else metrics.checkpointSizingBasis=ckBasis;
+ if((ckBasis==="typical"||ckBasis==="single")&&ckUpper===null){
+   warnings.push("Checkpoint size is not yet a worst-relevant/design bound.");
+   actions.push("Measure checkpoint-size variation or define an explicit design upper bound before final qualification.");
+ }
+ let failure=t("failure"), persistence=t("safe"), mode=t("mode"), layout=t("layout");
+ let appComplete=t("appComplete"), storageSafe=t("storageSafe"), publication=t("publication");
+ let measured=radio("spread")==="measured", trace=radio("trace")==="yes", thermal=t("thermal")==="yes";
+ let cycles=parsePositive("telemetryCycles","Telemetry checkpoint-cycle count",false);
+ let representative=t("telemetryRepresentative");
+ let share=null;
+ if(measured){
+   let s=raw("share"), v=Number(s);
+   if(s===""||!Number.isFinite(v)||v<=0||v>100)errors.push("Measured worst-drive share must be greater than 0% and no more than 100%.");
+   else share=v/100;
+   if(cycles===null&&!errors.some(x=>x.includes("Telemetry checkpoint-cycle")))warnings.push("Measured per-drive distribution has no recorded sample/cycle count.");
+   else if(cycles<10)warnings.push("Measured distribution covers fewer than 10 checkpoint cycles; Simms treats this as provisional evidence, not a qualification bound.");
+   if(representative!=="yes")warnings.push("Measured distribution has not been confirmed as representative of the production state.");
+ }
+ if(trace){
+   if(cycles===null&&!errors.some(x=>x.includes("Telemetry checkpoint-cycle")))warnings.push("I/O trace evidence has no recorded checkpoint-cycle count.");
+   else if(cycles<10)warnings.push("I/O trace covers fewer than 10 checkpoint cycles; Simms treats this as provisional evidence, not a qualification bound.");
+   if(representative!=="yes")warnings.push("I/O trace has not been confirmed as representative of the production state.");
+ }
+ let ceiling=parsePositive("pathCeiling","Known write-path ceiling",false);
+ let staging=parsePositive("stagingGB","Host-memory staging headroom",false);
+ let recoveryTarget=parsePositive("recoverySec","Recovery-ready target",false);
+ let recoveryObserved=parsePositive("recoveryObservedSec","Measured recovery-ready time",false);
+ let trainingTarget=parsePositive("trainingTargetSec","Training-visible target",false);
+ let trainingObserved=parsePositive("trainingObservedSec","Measured training-visible impact",false);
+
+ if(persistence==="unknown")blockers.push("The checkpoint persistence boundary has not been defined.");
+ else if((persistenceLevel[persistence]||0)<(failureLevel[failure]||0)){
+   blockers.push(`The checkpoint is only protected to “${persistence.replaceAll("_"," ")}”, which does not meet the required ${failure}-failure survival.`);
+   actions.push("Extend or redefine the durable checkpoint path so the persistence domain meets the required failure domain.");
+ }
+
+ // Semantic contract: staging/training-resume is not persistence; team disagreement is a requirements issue.
+ if(appComplete==="unknown"||storageSafe==="unknown"){
+   warnings.push("Application and storage completion semantics are not both formally defined.");
+   actions.push("Document the separate training-safe, local-stable, and recovery-ready boundaries.");
+ } else if(appComplete!==storageSafe){
+   warnings.push(`Application completion (“${appComplete.replaceAll("_"," ")}”) and storage safety (“${storageSafe.replaceAll("_"," ")}”) are different boundaries.`);
+   actions.push("Keep separate timing measurements for these boundaries; do not collapse them into one “checkpoint time”.");
+ }
+
+ let checkpointFormat=t("checkpointFormat");
+ // Publication semantics: data-file durability may not prove a complete multi-file checkpoint is durably published.
+ if(publication==="unknown"){
+   warnings.push("Checkpoint publication/metadata durability semantics are unknown.");
+   actions.push("Document how a newly created checkpoint becomes complete, discoverable, and recoverable after a crash.");
+ } else if(publication==="files_only" && checkpointFormat==="multi_file"){
+   blockers.push("For a multi-file checkpoint, data-file flush/sync alone does not prove the complete metadata/publication boundary is durable.");
+   actions.push("Verify metadata/manifest and namespace/directory publication semantics, or recovery-test the completed checkpoint.");
+ } else if(publication==="files_only"){
+   warnings.push("Data-file sync evidence is present, but crash/recovery publication semantics have not been independently verified.");
+   actions.push("Confirm namespace/publication durability or recovery-test a newly written checkpoint.");
+ }
+
+ if(!errors.length&&[nodes,drives,ck,interval,sec].every(v=>v!==null)){
+   let total=nodes*drives, cluster=ck*1000/sec;
+   if(!measured){
+     share=1/total;
+     warnings.push("Per-drive write distribution is unmeasured; device-level results use an equal-share assumption.");
+     actions.push("Measure bytes written per SSD over representative checkpoint cycles.");
+   }
+   if(share){
+     let drive=cluster*share, cpday=1440/interval, writes=ck*share*cpday;
+     metrics={...metrics,totalDrives:total,cluster,share,drive,cpday,writes,checkpointTBUsed:ck};
+   }
+   if(ceiling!==null&&cluster>ceiling){
+     blockers.push(`Required cluster write rate ${cluster.toFixed(1)} GB/s exceeds the stated path ceiling ${ceiling.toFixed(1)} GB/s.`);
+     actions.push("Change the architecture, checkpoint target, or path capacity before selecting SSDs.");
+   }
+ }
+
+ if(!trace){
+   warnings.push("Representative I/O size and concurrency evidence is missing.");
+   actions.push("Capture representative checkpoint I/O size and outstanding-I/O/concurrency.");
+ }else tests.push("Replay the representative captured checkpoint I/O pattern.");
+
+ if(mode==="async"&&ck&&nodes){
+   let stage=ck*1000/nodes;metrics.stageGB=stage;
+   if(staging!==null&&stage>staging){
+     blockers.push(`Average staged checkpoint share ${stage.toFixed(1)} GB/node exceeds stated host-memory headroom ${staging.toFixed(1)} GB/node.`);
+     actions.push("Increase host-memory headroom, reduce staged bytes, or change checkpoint architecture.");
+   }else if(staging===null&&!errors.some(x=>x.includes("staging headroom"))){
+     warnings.push("Async checkpoint staging capacity has not been validated.");
+     actions.push("Validate host-memory headroom for asynchronous checkpoint staging.");
+   }
+ }
+
+ if(appComplete==="staged"){
+   if(trainingTarget===null&&!errors.some(x=>x.includes("Training-visible target"))){
+     warnings.push("The application completion boundary is training/staging, but no training-visible target is defined.");
+     actions.push("Define how much training interruption is acceptable.");
+   } else if(trainingObserved===null&&!errors.some(x=>x.includes("Measured training-visible"))){
+     warnings.push("Training-visible checkpoint impact has not been measured.");
+     actions.push("Measure the application-visible staging/checkpoint pause separately from storage completion.");
+   } else if(trainingTarget!==null&&trainingObserved!==null&&trainingObserved>trainingTarget){
+     blockers.push(`Measured training-visible impact ${trainingObserved.toFixed(1)}s exceeds the target ${trainingTarget.toFixed(1)}s.`);
+     actions.push("Change checkpoint staging/implementation or revise the training-impact objective.");
+   }
+ }
+
+ if(recoveryTarget!==null){
+   if(recoveryObserved===null&&!errors.some(x=>x.includes("Measured recovery-ready"))){
+     blockers.push("A recovery-ready target is defined, but actual recovery-ready time has not been measured.");
+     actions.push("Measure end-to-end time until a usable checkpoint exists in the required recovery domain.");
+   }else if(recoveryObserved!==null&&recoveryObserved>recoveryTarget){
+     blockers.push(`Measured recovery-ready time ${recoveryObserved.toFixed(1)}s exceeds the target ${recoveryTarget.toFixed(1)}s.`);
+     actions.push("Change the recovery path/architecture or revise the recovery objective.");
+   }
+ }
+
+
+ const recoveryLevel={none:0,storage_readable:1,framework_load:2,state_restored:3,training_resume:4};
+ const objectiveLevel={unknown:0,storage_readable:1,framework_load:2,training_resume:4};
+ let recoveryObjective=t("recoveryObjective"), recoveryValidation=t("recoveryValidation"),
+     differentHost=t("differentHostRecovery"), requiredState=t("requiredStateValidated"), resumeSanity=t("resumeSanity");
+
+ if(recoveryObjective==="unknown"){
+   warnings.push("The required definition of successful recovery has not been formalised.");
+   actions.push("Define whether success means readable storage, framework load, or actual training resumption.");
+ } else {
+   let req=objectiveLevel[recoveryObjective], got=recoveryLevel[recoveryValidation];
+   if(got<req){
+     blockers.push(`Recovery evidence (“${recoveryValidation.replaceAll("_"," ")}”) is weaker than the stated recovery objective (“${recoveryObjective.replaceAll("_"," ")}”).`);
+     actions.push("Run a recovery validation that reaches the stated recovery objective.");
+   }
+   if(recoveryObjective!=="storage_readable"&&requiredState!=="yes"){
+     blockers.push("Required checkpoint state has not been explicitly validated for application recovery.");
+     actions.push("Define the application-required checkpoint state and verify it is restored.");
+   }
+   if(recoveryObjective==="training_resume"){
+     if(resumeSanity==="fail"){
+       blockers.push("The resumed training smoke test failed or behaved unexpectedly.");
+       actions.push("Treat the checkpoint as invalid for the stated recovery objective until the cause is resolved.");
+     } else if(resumeSanity!=="pass"){
+       blockers.push("Training resumption has not passed a defined post-restore sanity check.");
+       actions.push("Resume from the checkpoint and run a defined post-restore smoke/sanity window.");
+     }
+   }
+   if((failureLevel[failure]||0)>=3 && differentHost!=="yes"){
+     blockers.push("Recovery has not been validated from the intended failure-independent host/location.");
+     actions.push("Repeat recovery from a host/location that actually survives the selected failure domain.");
+   }
+ }
+
+ // Readability/load success is intentionally not called semantic checkpoint validity.
+ if(recoveryValidation==="storage_readable"){
+   warnings.push("Readable checkpoint bytes do not prove framework-load success or correct training-state recovery.");
+ } else if(recoveryValidation==="framework_load"){
+   warnings.push("Framework load success does not by itself prove that all required training state is correct or that training resumes successfully.");
+ } else if(recoveryValidation==="state_restored" && recoveryObjective==="training_resume"){
+   warnings.push("State restoration without error is weaker evidence than a successful resumed-training smoke test.");
+ }
+
+
+ let selectionPolicy=t("selectionPolicy"), newestStatus=t("newestStatus"), fallbackStatus=t("fallbackStatus"),
+     integrityEvidence=t("integrityEvidence"), versionChanged=t("versionChanged"),
+     versionCompatibility=t("versionCompatibility"), optimizerRequired=t("optimizerRequired"),
+     optimizerCompatible=t("optimizerCompatible"), topologyChanged=t("topologyChanged"),
+     topologyCompatible=t("topologyCompatible");
+ let fallbackGenerations=parsePositive("fallbackGenerations","Fallback generation distance",false);
+
+ if(selectionPolicy==="unknown"){
+   warnings.push("Checkpoint selection policy is not defined.");
+   actions.push("Define whether recovery chooses newest, newest-valid, or a manually approved checkpoint.");
+ } else if(selectionPolicy==="newest" && newestStatus!=="valid"){
+   blockers.push("Recovery policy chooses the newest checkpoint even though its validity is not established.");
+   actions.push("Use a newest-valid/validated selection policy or prove the newest checkpoint is valid.");
+ } else if(selectionPolicy==="newest_valid"){
+   if(newestStatus==="valid"){
+     metrics.selectedCheckpoint="newest";
+   } else if(["incomplete","corrupt","load_failed"].includes(newestStatus)){
+     if(fallbackStatus==="valid"){
+       metrics.selectedCheckpoint="fallback";
+       if(fallbackGenerations!==null&&interval!==null){
+         metrics.additionalProgressLossMin=fallbackGenerations*interval;
+         warnings.push(`Newest checkpoint is unusable; recovery falls back ${fallbackGenerations} checkpoint interval(s), adding up to about ${metrics.additionalProgressLossMin.toFixed(1)} minutes of extra progress loss versus the newest generation.`);
+       } else {
+         warnings.push("Newest checkpoint is unusable and recovery depends on an older validated fallback.");
+       }
+     } else {
+       blockers.push("Newest checkpoint is unusable and no validated fallback checkpoint is available.");
+       actions.push("Validate an older checkpoint or change the recovery/retention strategy.");
+     }
+   } else {
+     blockers.push("Newest-valid selection is configured, but the newest checkpoint validity is unknown.");
+     actions.push("Run the configured validity/integrity check and identify the newest usable generation.");
+   }
+ }
+
+ if(integrityEvidence==="unknown"){
+   warnings.push("No explicit checkpoint integrity/completeness evidence is recorded.");
+   actions.push("Use framework validity checks, manifest/hash verification, load validation, or recovery validation appropriate to the format.");
+ }
+
+ if(versionChanged==="unknown"){
+   warnings.push("Checkpoint/software version relationship is unknown.");
+   actions.push("Record the writer and recovery framework/software versions.");
+ } else if(versionChanged==="yes"){
+   if(versionCompatibility==="no"){
+     blockers.push("The checkpoint is known to be incompatible with the current software/framework version.");
+     actions.push("Use a compatible checkpoint/software version or perform an approved conversion/migration.");
+   } else if(versionCompatibility!=="yes"){
+     blockers.push("Software/framework version changed, but checkpoint compatibility has not been validated.");
+     actions.push("Validate the exact checkpoint on the current recovery software version.");
+   }
+ }
+
+ if(optimizerRequired==="unknown" && recoveryObjective==="training_resume"){
+   warnings.push("It is unclear whether optimizer/training state is required for the intended resume.");
+   actions.push("Define the required resume state; weights-only load may not be equivalent to continuing training.");
+ } else if(optimizerRequired==="yes"){
+   if(optimizerCompatible==="no"){
+     blockers.push("Required optimizer/training state is known to be incompatible or unavailable.");
+     actions.push("Use a compatible checkpoint or recovery path; do not equate model-weight load with training resume.");
+   } else if(optimizerCompatible!=="yes"){
+     blockers.push("Optimizer/training-state compatibility is required but has not been validated.");
+     actions.push("Validate optimizer/training-state restore under the exact recovery software/configuration.");
+   }
+ }
+
+ if(topologyChanged==="unknown"){
+   warnings.push("Recovery parallelism/topology relationship is unknown.");
+   actions.push("Record the saved and recovery TP/PP/DP/node topology.");
+ } else if(topologyChanged==="yes"){
+   if(topologyCompatible==="no"){
+     blockers.push("The checkpoint is known to be incompatible with the target recovery topology.");
+     actions.push("Use supported resharding/conversion or recover under a compatible topology.");
+   } else if(topologyCompatible!=="yes"){
+     blockers.push("Recovery topology changed, but checkpoint resharding/compatibility has not been validated.");
+     actions.push("Validate the exact checkpoint under the target parallelism/topology.");
+   }
+ }
+
+
+ let maxProgressLoss=parsePositive("maxProgressLossMin","Maximum acceptable progress loss",false);
+ let retentionPolicy=t("retentionPolicy"), overlappingCheckpoints=t("overlappingCheckpoints"),
+     overlapSafety=t("overlapSafety"), progressIdentity=t("progressIdentity"), continuityCheck=t("continuityCheck");
+ let maxInflight=parsePositive("maxInflight","Maximum in-flight checkpoint saves",false);
+
+ // Fallback/RPO: a valid older checkpoint is not automatically acceptable if it loses too much progress.
+ if(metrics.selectedCheckpoint==="fallback"){
+   if(maxProgressLoss===null&&!errors.some(x=>x.includes("Maximum acceptable progress loss"))){
+     blockers.push("Recovery falls back to an older checkpoint, but the maximum acceptable progress-loss objective is not defined.");
+     actions.push("Define the maximum acceptable lost training progress and compare it with fallback age.");
+   } else if(metrics.additionalProgressLossMin!==undefined && maxProgressLoss!==null && metrics.additionalProgressLossMin>maxProgressLoss){
+     blockers.push(`Fallback adds about ${metrics.additionalProgressLossMin.toFixed(1)} minutes of progress loss, exceeding the ${maxProgressLoss.toFixed(1)} minute objective.`);
+     actions.push("Retain/validate a newer checkpoint, checkpoint more frequently, or revise the progress-loss objective.");
+   }
+ }
+
+ // Retention/deletion safety.
+ if(retentionPolicy==="unknown"){
+   warnings.push("Retention/cleanup policy is not formally defined.");
+   actions.push("Document when old/incomplete checkpoints may be deleted and preserve a last-known-good generation.");
+ } else if(retentionPolicy==="count_only"){
+   blockers.push("Age/count-only cleanup does not prove that the last validated checkpoint is preserved during creation/finalization of a newer generation.");
+   actions.push("Use or validate a cleanup policy that preserves a known-good checkpoint until a newer generation is finalized and validated.");
+ }
+
+ // Concurrent/in-flight save safety.
+ if(overlappingCheckpoints==="unknown"){
+   warnings.push("It is unknown whether multiple checkpoint saves can be in-flight at once.");
+   actions.push("Confirm async checkpoint queue/finalization behaviour for the exact framework/version.");
+ } else if(overlappingCheckpoints==="yes"){
+   if(overlapSafety==="no"){
+     blockers.push("Overlapping checkpoint saves can race or overwrite because generation/finalization safety is not established.");
+     actions.push("Use unique checkpoint generations/paths and coordinate finalization/cleanup before permitting overlap.");
+   } else if(overlapSafety!=="yes"){
+     blockers.push("Overlapping checkpoint saves are possible, but unique-generation/finalization safety has not been validated.");
+     actions.push("Validate concurrent async save scheduling, unique output generations, finalization and cleanup behaviour.");
+   }
+   if(maxInflight===null&&!errors.some(x=>x.includes("Maximum in-flight"))){
+     warnings.push("Maximum concurrent/unfinalized checkpoint-save depth has not been observed.");
+     actions.push("Measure or bound the number of in-flight async checkpoint requests under production cadence.");
+   }
+ }
+
+ // Operational semantic continuity after resume.
+ if(recoveryObjective==="training_resume"){
+   if(progressIdentity==="fail"){
+     blockers.push("Training resumed from the wrong or stale checkpoint progress/step.");
+     actions.push("Treat the recovery as invalid and fix checkpoint selection/state restoration.");
+   } else if(progressIdentity!=="pass"){
+     blockers.push("Restored training progress/step has not been explicitly matched to the selected checkpoint.");
+     actions.push("Verify restored training progress/step against checkpoint metadata/application state.");
+   }
+   if(continuityCheck==="fail"){
+     blockers.push("The resumed job failed the project-defined post-restore continuity check.");
+     actions.push("Investigate semantic state restoration; a running job is not sufficient evidence of correct recovery.");
+   } else if(continuityCheck!=="pass"){
+     blockers.push("No project-defined post-restore continuity check has passed.");
+     actions.push("Define and run an application-specific continuity check after recovery.");
+   }
+ }
+
+
+ let integrityFreshness=t("integrityFreshness"), checkpointMutability=t("checkpointMutability"),
+     restoreIntegrityCheck=t("restoreIntegrityCheck"), cleanupDuringRecovery=t("cleanupDuringRecovery"),
+     recoveryPinning=t("recoveryPinning"), createDuringRecovery=t("createDuringRecovery"),
+     generationVisibility=t("generationVisibility"), selectionPin=t("selectionPin"),
+     semanticDriftCheck=t("semanticDriftCheck");
+
+ // A checkpoint can become invalid after initial validation. Re-check at restore when mutation/bit-rot/missing files are possible.
+ if(integrityFreshness==="unknown"){
+   warnings.push("Checkpoint integrity verification freshness is unknown.");
+   actions.push("Record whether integrity/completeness is re-verified at restore time.");
+ }
+ if(checkpointMutability==="unknown"){
+   warnings.push("It is unknown whether checkpoint contents are immutable after validation.");
+   actions.push("Define protection/mutation/garbage-collection semantics for finalized checkpoints.");
+ } else if(checkpointMutability==="mutable"){
+   if(restoreIntegrityCheck==="no"){
+     blockers.push("Checkpoint contents can change after validation, but integrity is not rechecked at restore time.");
+     actions.push("Re-verify current checkpoint contents immediately before or during restore.");
+   } else if(restoreIntegrityCheck!=="yes"){
+     blockers.push("Checkpoint contents can change after validation, but restore-time integrity verification is unproven.");
+     actions.push("Validate restore-time integrity/completeness checking.");
+   }
+ }
+ if(checkpointMutability==="immutable" && integrityFreshness==="at_save"){
+   warnings.push("Checkpoint was verified at creation but not re-verified at restore; immutable-storage controls are carrying the integrity assumption.");
+ }
+
+ // Cleanup/recovery race.
+ if(cleanupDuringRecovery==="unknown"){
+   warnings.push("It is unknown whether checkpoint cleanup can overlap an active recovery.");
+   actions.push("Define cleanup versus recovery concurrency semantics.");
+ } else if(cleanupDuringRecovery==="yes"){
+   if(recoveryPinning==="no"){
+     blockers.push("Cleanup can overlap recovery and the selected checkpoint is not protected from deletion/mutation.");
+     actions.push("Pin/lease/snapshot/reference the selected generation for the full recovery operation.");
+   } else if(recoveryPinning!=="yes"){
+     blockers.push("Cleanup can overlap recovery, but protection of the selected checkpoint has not been validated.");
+     actions.push("Validate recovery pinning/lease/reference semantics against cleanup.");
+   }
+ }
+
+ // New checkpoint publication/recovery-selection race.
+ if(createDuringRecovery==="unknown"){
+   warnings.push("It is unknown whether checkpoint creation can overlap recovery selection/loading.");
+   actions.push("Define creation-versus-recovery concurrency semantics.");
+ } else if(createDuringRecovery==="yes"){
+   if(generationVisibility==="no"){
+     blockers.push("Recovery can observe a checkpoint generation before it is fully finalized/published.");
+     actions.push("Expose only finalized generations to recovery selection.");
+   } else if(generationVisibility!=="yes"){
+     blockers.push("Checkpoint creation can overlap recovery, but generation visibility/finalization isolation is unproven.");
+     actions.push("Validate that recovery selection sees only fully finalized generations.");
+   }
+   if(selectionPin==="no"){
+     blockers.push("Recovery does not pin one selected checkpoint generation; the recovery target can change while loading.");
+     actions.push("Pin a stable checkpoint generation identity for the duration of restore.");
+   } else if(selectionPin!=="yes"){
+     blockers.push("Recovery generation selection is not proven stable during concurrent checkpoint creation.");
+     actions.push("Validate generation pinning/snapshot semantics during restore.");
+   }
+ }
+
+ // Silent semantic drift: running is weaker than a project-specific correctness check.
+ if(recoveryObjective==="training_resume"){
+   if(semanticDriftCheck==="runtime_only"){
+     blockers.push("Post-restore validation only proves that the process keeps running; semantic training continuity has not been checked.");
+     actions.push("Define and run a project-specific state/step/loss/continuity check.");
+   } else if(semanticDriftCheck!=="project_check"){
+     blockers.push("No project-specific semantic continuity check has been defined and passed.");
+     actions.push("Define what correct continuation means for this workload and validate it after restore.");
+   }
+ }
+
+
+ let midSaveFailure=t("midSaveFailure"), partialSavePolicy=t("partialSavePolicy"),
+     allRankFinalization=t("allRankFinalization"), partitionDuringSave=t("partitionDuringSave"),
+     partitionOutcome=t("partitionOutcome"), visibilityConsensus=t("visibilityConsensus"),
+     sharedAvailability=t("sharedAvailability"), degradedSemantics=t("degradedSemantics");
+
+ if(midSaveFailure==="unknown"){
+   warnings.push("Mid-save rank/node failure behaviour is unknown.");
+   actions.push("Test failure of a participating rank/node during checkpoint write and finalization.");
+ } else if(midSaveFailure==="yes"){
+   if(partialSavePolicy==="publish_partial"){
+     blockers.push("A generation can be published after a participating rank fails, allowing a partial checkpoint to appear complete.");
+     actions.push("Fail closed or validate distributed completeness before publication.");
+   } else if(partialSavePolicy==="unknown"){
+     blockers.push("Mid-save rank failure is in scope, but partial-generation publication behaviour is unproven.");
+     actions.push("Validate that failed/incomplete distributed generations cannot enter recovery selection.");
+   }
+   if(allRankFinalization==="no"){
+     blockers.push("Checkpoint publication does not require distributed/all-rank successful finalization.");
+     actions.push("Require a framework-appropriate global finalization/completeness gate.");
+   } else if(allRankFinalization==="unknown"){
+     blockers.push("Distributed/all-rank checkpoint finalization semantics are unknown.");
+     actions.push("Validate all-rank completion/finalization semantics for the exact framework/version.");
+   }
+ }
+
+ if(partitionDuringSave==="unknown"){
+   warnings.push("Network-partition/peer-loss behaviour during checkpoint finalization is unknown.");
+   actions.push("Test communication failure during distributed checkpoint finalization.");
+ } else if(partitionDuringSave==="yes"){
+   if(partitionOutcome==="split_visibility"){
+     blockers.push("A communication failure can leave different ranks/hosts with inconsistent checkpoint-finalization visibility.");
+     actions.push("Fail closed and establish one authoritative finalized-generation view.");
+   } else if(partitionOutcome==="unknown"){
+     blockers.push("Partition behaviour is in scope, but checkpoint finalization outcome is unproven.");
+     actions.push("Test whether communication loss leaves the generation recovery-ineligible.");
+   }
+ }
+ if(visibilityConsensus==="yes"){
+   blockers.push("Recovery hosts can disagree about which checkpoint generation is finalized.");
+   actions.push("Establish a consistent/authoritative finalized-generation view before recovery selection.");
+ } else if(visibilityConsensus==="unknown"){
+   warnings.push("Cross-host finalized-generation visibility has not been validated.");
+   actions.push("Compare recovery-generation visibility from multiple intended recovery hosts.");
+ }
+
+ if(sharedAvailability==="unknown"){
+   warnings.push("Checkpoint semantics under degraded/shared-tier availability are unknown.");
+   actions.push("Test checkpointing and recovery selection during partial shared-tier availability.");
+ } else if(["degraded","unavailable"].includes(sharedAvailability)){
+   if(degradedSemantics==="yes"){
+     blockers.push("Local completion is being treated as recovery-ready even though the required shared/durable tier is degraded or unavailable.");
+     actions.push("Keep local-stable and recovery-ready states separate until the required durable domain is available.");
+   } else if(degradedSemantics==="unknown"){
+     blockers.push("Shared/durable tier is degraded, but recovery-ready semantics are not defined.");
+     actions.push("Define whether checkpoint recovery-readiness can advance while the required durable tier is unavailable.");
+   }
+ }
+
+
+ let autoRestart=t("autoRestart"), restartCheckpointGate=t("restartCheckpointGate"),
+     terminationDuringSave=t("terminationDuringSave"), terminationPolicy=t("terminationPolicy"),
+     restartGenerationPin=t("restartGenerationPin"), restartOverlap=t("restartOverlap"),
+     restartConsensus=t("restartConsensus"), restartVisibilityRace=t("restartVisibilityRace");
+
+ if(autoRestart==="unknown"){
+   warnings.push("Scheduler/launcher restart behaviour is unknown.");
+   actions.push("Document restart/requeue/autoresume behaviour for the actual orchestration stack.");
+ } else if(autoRestart==="yes"){
+   if(restartCheckpointGate==="no"){
+     blockers.push("Automatic restart can launch before a finalized valid checkpoint has been selected.");
+     actions.push("Gate restart/resume on a finalized valid checkpoint generation.");
+   } else if(restartCheckpointGate==="unknown"){
+     blockers.push("Automatic restart is enabled, but checkpoint-selection gating is unproven.");
+     actions.push("Validate scheduler/launcher restart against checkpoint finalization/validity.");
+   }
+   if(restartGenerationPin==="no"){
+     blockers.push("Restart does not pin one exact checkpoint generation before worker launch.");
+     actions.push("Resolve and pin the recovery generation before starting distributed workers.");
+   } else if(restartGenerationPin==="unknown"){
+     blockers.push("Restart generation pinning is unproven.");
+     actions.push("Validate stable generation selection across all restarted workers.");
+   }
+   if(restartVisibilityRace==="yes"){
+     blockers.push("Restart can begin before the selected checkpoint is visible/accessible to the new allocation.");
+     actions.push("Gate worker startup on checkpoint visibility/accessibility from the recovery allocation.");
+   } else if(restartVisibilityRace==="unknown"){
+     warnings.push("Checkpoint visibility timing relative to scheduler restart is unknown.");
+     actions.push("Measure checkpoint visibility/remapping before worker launch.");
+   }
+ }
+ if(terminationDuringSave==="unknown"){
+   warnings.push("Termination/preemption behaviour during an in-flight checkpoint is unknown.");
+   actions.push("Test termination/preemption while async checkpoint work is active.");
+ } else if(terminationDuringSave==="yes"){
+   if(terminationPolicy==="exit_immediate"){
+     blockers.push("Termination can exit with in-flight checkpoint state unresolved.");
+     actions.push("Either finalize safely before exit or guarantee the generation is aborted/ineligible.");
+   } else if(terminationPolicy==="unknown"){
+     blockers.push("Termination can interrupt checkpointing, but abort/finalization semantics are unproven.");
+     actions.push("Validate signal/termination handling for in-flight checkpoint work.");
+   }
+ }
+ if(restartOverlap==="yes"){
+   if(restartConsensus==="no"){
+     blockers.push("Overlapping restart attempts can use different checkpoint generations.");
+     actions.push("Serialize restart or enforce one authoritative recovery generation.");
+   } else if(restartConsensus==="unknown"){
+     blockers.push("Overlapping restart attempts are possible, but recovery-generation consensus is unproven.");
+     actions.push("Validate generation consensus across restart attempts.");
+   }
+ } else if(restartOverlap==="unknown"){
+   warnings.push("Concurrent/overlapping restart behaviour is unknown.");
+   actions.push("Confirm whether restart/requeue attempts can overlap.");
+ }
+
+
+ let retainedGenerations=parsePositive("retainedGenerations","Retained checkpoint generations",false),
+     localFreeTB=parsePositive("localFreeTB","Usable free local checkpoint capacity",false),
+     capacityReservePct=parsePositive("capacityReservePct","Capacity reserve percentage",false),
+     metadataHeadroom=t("metadataHeadroom"), quotaHeadroom=t("quotaHeadroom"),
+     highFillQualified=t("highFillQualified"), simultaneousJobs=parsePositive("simultaneousJobs","Simultaneous checkpointing jobs",false),
+     checkpointStaggered=t("checkpointStaggered");
+
+ if(retainedGenerations!==null && ck!==null){
+   let inflightExtra=(overlappingCheckpoints==="yes" ? 1 : 0);
+   let reserve=(capacityReservePct===null ? null : capacityReservePct/100);
+   if(reserve===null&&!errors.some(x=>x.includes("Capacity reserve"))){
+     warnings.push("Capacity reserve policy is not defined.");
+     actions.push("Define explicit usable-capacity reserve/headroom policy.");
+   } else {
+     metrics.requiredLocalCapacityTB=ck*(retainedGenerations+inflightExtra)*(1+reserve);
+     if(localFreeTB===null&&!errors.some(x=>x.includes("free local"))){
+       warnings.push("Usable free capacity of the local checkpoint tier is unknown.");
+       actions.push("Measure usable free capacity at the target operating point.");
+     } else if(localFreeTB!==null && localFreeTB<metrics.requiredLocalCapacityTB){
+       blockers.push(`Usable local checkpoint capacity ${localFreeTB.toFixed(2)} TB is below the modelled ${metrics.requiredLocalCapacityTB.toFixed(2)} TB working-set requirement.`);
+       actions.push("Increase usable capacity, reduce retention/in-flight generations, or revise reserve policy.");
+     }
+   }
+ }
+ if(metadataHeadroom==="exhausted"){
+   blockers.push("Filesystem metadata/inode capacity is insufficient for the target checkpoint workload.");
+   actions.push("Increase metadata/inode capacity or change checkpoint/file-layout strategy.");
+ } else if(metadataHeadroom==="unknown"){
+   warnings.push("Filesystem metadata/inode headroom has not been checked.");
+   actions.push("Validate metadata/inode capacity at target file count and retention.");
+ }
+ if(quotaHeadroom==="insufficient"){
+   blockers.push("Quota/allocation limits can prevent checkpoint completion despite free physical capacity.");
+   actions.push("Increase quota/allocation or reduce checkpoint working set.");
+ } else if(quotaHeadroom==="unknown"){
+   warnings.push("Quota/allocation headroom is unknown.");
+   actions.push("Validate effective quota/allocation limits for the checkpoint path.");
+ }
+ if(highFillQualified==="no"){
+   blockers.push("Checkpoint performance has not been qualified at the maximum permitted storage fill level.");
+   actions.push("Run checkpoint replay at the maximum allowed utilisation/free-space condition.");
+ } else if(highFillQualified==="unknown"){
+   warnings.push("Performance at high storage utilisation is unproven.");
+   actions.push("Qualify sustained checkpoint behaviour at maximum permitted fill level.");
+ }
+ if(simultaneousJobs!==null && simultaneousJobs>1){
+   if(checkpointStaggered==="no"){
+     metrics.concurrentClusterDemandGBps=(metrics.cluster||0)*simultaneousJobs;
+     if(ceiling!==null && metrics.concurrentClusterDemandGBps>ceiling){
+       blockers.push(`Coincident checkpoint bursts could demand ${metrics.concurrentClusterDemandGBps.toFixed(1)} GB/s, exceeding the stated ${ceiling.toFixed(1)} GB/s path ceiling.`);
+       actions.push("Stagger checkpoint bursts, add path capacity, or enforce workload admission/control.");
+     } else {
+       warnings.push(`Up to ${simultaneousJobs} jobs may checkpoint concurrently; aggregate contention requires system-level qualification.`);
+       tests.push("Run multi-job coincident-checkpoint contention test.");
+     }
+   } else if(checkpointStaggered==="unknown"){
+     warnings.push("Multi-job checkpoint burst coordination is unknown.");
+     actions.push("Define whether checkpoint bursts are staggered/admission-controlled.");
+   }
+ }
+
+
+ const ref=id=>(document.getElementById(id)?.value||"").trim();
+ let distributionEvidenceRef=ref("distributionEvidenceRef"), ioEvidenceRef=ref("ioEvidenceRef"),
+     recoveryEvidenceRef=ref("recoveryEvidenceRef"), thermalEvidenceRef=ref("thermalEvidenceRef"),
+     compatibilityEvidenceRef=ref("compatibilityEvidenceRef"), candidatePerfEvidence=t("candidatePerfEvidence"),
+     exactCandidateEvidence=t("exactCandidateEvidence"), evidenceReview=t("evidenceReview");
+ let evidenceGaps=[];
+
+ if(measured && !distributionEvidenceRef){
+   evidenceGaps.push("Measured per-drive distribution is asserted without an evidence reference.");
+   actions.push("Attach/reference the telemetry used to derive per-drive distribution.");
+ }
+ if(trace && !ioEvidenceRef){
+   evidenceGaps.push("Representative I/O trace is asserted without an evidence reference.");
+   actions.push("Attach/reference the workload trace or telemetry capture.");
+ }
+ if(["framework_load","state_restored","training_resume"].includes(recoveryValidation) && !recoveryEvidenceRef){
+   evidenceGaps.push("Recovery validation is asserted without a test/run evidence reference.");
+   actions.push("Attach/reference the recovery validation run.");
+ }
+ if(thermal && !thermalEvidenceRef){
+   evidenceGaps.push("Thermal qualification is asserted without a production-chassis test reference.");
+   actions.push("Attach/reference the exact-candidate thermal qualification run.");
+ }
+ if((versionChanged==="yes"&&versionCompatibility==="yes") || (topologyChanged==="yes"&&topologyCompatible==="yes")){
+   if(!compatibilityEvidenceRef){
+     evidenceGaps.push("Version/topology compatibility is asserted without an evidence reference.");
+     actions.push("Attach/reference the exact checkpoint compatibility validation.");
+   }
+ }
+ evidenceGaps.forEach(x=>warnings.push(x));
+
+ if(candidatePerfEvidence==="datasheet"){
+   warnings.push("Vendor datasheet performance is supporting evidence only; it does not prove production-like workload qualification.");
+   tests.push("Validate exact candidate under production-like checkpoint workload/topology.");
+ } else if(candidatePerfEvidence==="vendor_test"){
+   warnings.push("Vendor test evidence must be checked against the project's block mix, concurrency, conditioning, topology and firmware.");
+ }
+ if(exactCandidateEvidence==="no" && candidatePerfEvidence!=="unknown"){
+   blockers.push("Candidate evidence is family-level/not tied to the exact MPN + firmware being qualified.");
+   actions.push("Obtain or generate evidence for the exact candidate identity.");
+ } else if(exactCandidateEvidence==="unknown"){
+   warnings.push("It is unknown whether candidate evidence maps to the exact MPN + firmware.");
+ }
+ if(evidenceReview==="self_asserted"){
+   warnings.push("Key engineering answers are self-asserted without linked evidence.");
+   actions.push("Link evidence records before treating measured/validated answers as qualification-ready.");
+ } else if(evidenceReview==="unknown"){
+   warnings.push("Evidence review status is unknown.");
+ }
+
+
+ let deploymentState=t("deploymentState"), serverModel=(document.getElementById("serverModel")?.value||"").trim(),
+     requiredFormFactor=t("requiredFormFactor"), requiredPcieGen=t("requiredPcieGen"), requiredLanes=t("requiredLanes"),
+     availableBays=parsePositive("availableBays","Available bays/slots per node",false),
+     backplaneConfig=(document.getElementById("backplaneConfig")?.value||"").trim(),
+     powerCoolingFit=t("powerCoolingFit"), incumbentDrive=(document.getElementById("incumbentDrive")?.value||"").trim(),
+     candidateMpn=(document.getElementById("candidateMpn")?.value||"").trim(),
+     candidateFirmware=(document.getElementById("candidateFirmware")?.value||"").trim(),
+     candidateFormFactor=t("candidateFormFactor"), candidatePcieGen=t("candidatePcieGen"), candidateLanes=t("candidateLanes"),
+     candidateCapacityTB=parsePositive("candidateCapacityTB","Candidate capacity",false),
+     avlStatus=t("avlStatus"), avlEvidenceRef=(document.getElementById("avlEvidenceRef")?.value||"").trim(),
+     fitEvidence=t("fitEvidence"), vendorPerfSource=t("vendorPerfSource"), enduranceSource=t("enduranceSource"),
+     unsupportedVendorYes=t("unsupportedVendorYes");
+
+ let rfiEvidencePlan=[
+   {item:"Form factor / interface / capacity",source:"DATASHEET",vendor:"Confirm exact MPN specification",accept:"Published datasheet / ordering specification"},
+   {item:"OEM/server support / AVL",source:"OEM EVIDENCE",vendor:"Provide exact server/configuration support reference",accept:"OEM support matrix, AVL, QuickSpecs or equivalent"},
+   {item:"Checkpoint workload requirement",source:"CUSTOMER / SIMMS",vendor:"Use supplied workload; do not replace with generic benchmark assumptions",accept:"SIMMS assessment evidence"},
+   {item:"Sustained checkpoint-write performance",source:"VENDOR TEST / JOINT QUALIFICATION",vendor:"Test exact MPN/firmware against supplied I/O envelope",accept:"Datasheet alone is not qualification evidence"},
+   {item:"Endurance / lifetime",source:"DATASHEET + VENDOR CALCULATION",vendor:"Confirm published endurance and calculate against supplied workload/duty cycle",accept:"Published spec plus calculation assumptions"},
+   {item:"Power / thermal behaviour",source:"VENDOR SPEC + JOINT QUALIFICATION",vendor:"State power/thermal limits; validate in target chassis",accept:"Specification for limits; platform test for qualification"},
+   {item:"Firmware / lifecycle / second source",source:"VENDOR SPECIFICATION",vendor:"State exact firmware, lifecycle status and change-control policy",accept:"Vendor engineering response"},
+   {item:"Recovery/platform behaviour",source:"CUSTOMER / JOINT QUALIFICATION",vendor:"Support platform test; vendor yes/no is insufficient",accept:"Target-system qualification evidence"}
+ ];
+
+ if(deploymentState==="unknown"){warnings.push("Deployment state (greenfield/existing/replacement/second-source) is unknown.");actions.push("Define deployment context before issuing the RFI.");}
+ if(!serverModel){warnings.push("Exact server/platform model is not recorded.");actions.push("Record OEM/server model and configuration before candidate screening.");}
+ if(requiredFormFactor==="unknown"||requiredPcieGen==="unknown"||requiredLanes==="unknown"||!backplaneConfig){
+   warnings.push("Physical/electrical deployment constraints are incomplete.");
+   actions.push("Record form factor, PCIe generation/lanes and backplane/carrier configuration.");
+ }
+ if(deploymentState!=="greenfield"&&!incumbentDrive){
+   warnings.push("Existing/target deployment is not tied to an incumbent SSD MPN/firmware.");
+   actions.push("Record incumbent drive identity or explicitly state that no incumbent exists.");
+ }
+ if(!candidateMpn||!candidateFirmware){warnings.push("Exact candidate MPN/firmware is not fully recorded.");actions.push("Require exact candidate identity before qualification.");}
+ if(requiredFormFactor!=="unknown"&&candidateFormFactor!=="unknown"&&requiredFormFactor!==candidateFormFactor){
+   blockers.push("Candidate form factor does not match the recorded platform requirement.");
+   actions.push("Select a mechanically compatible candidate or revise the documented platform constraint.");
+ }
+ if(requiredPcieGen!=="unknown"&&candidatePcieGen!=="unknown"&&Number(candidatePcieGen)<Number(requiredPcieGen)){
+   blockers.push("Candidate PCIe generation is below the recorded platform/performance requirement.");
+ }
+ if(requiredLanes!=="unknown"&&candidateLanes!=="unknown"&&Number(candidateLanes)<Number(requiredLanes)){
+   blockers.push("Candidate lane width is below the recorded requirement.");
+ }
+ if(powerCoolingFit==="fails"){blockers.push("Candidate is outside the supported platform power/cooling envelope.");}
+ else if(powerCoolingFit==="unknown"){warnings.push("Candidate power/cooling fit is unproven.");actions.push("Check server/OEM thermal and power constraints.");}
+ else if(powerCoolingFit==="conditional"){tests.push("Validate required fan/thermal/platform configuration before deployment.");}
+
+ if(avlStatus==="not_listed"){
+   blockers.push("Exact candidate is not listed/supported for the recorded server configuration.");
+   actions.push("Obtain OEM approval/support exception or choose an OEM-supported candidate.");
+ } else if(avlStatus==="vendor_claim"){
+   warnings.push("Server compatibility is currently a vendor claim without OEM/AVL evidence.");
+   actions.push("Require OEM support-matrix/AVL evidence for the exact server/configuration.");
+ } else if(avlStatus==="unknown"){
+   warnings.push("OEM/server AVL/support status is unknown.");
+   actions.push("Cross-check exact candidate MPN against OEM/server support documentation.");
+ } else if((avlStatus==="listed"||avlStatus==="conditional")&&!avlEvidenceRef){
+   warnings.push("AVL/support status is asserted without an OEM evidence reference.");
+   actions.push("Attach the OEM support/AVL reference.");
+ }
+ if(fitEvidence==="unknown"){warnings.push("Physical/electrical fit is asserted without adequate evidence.");}
+ if(vendorPerfSource==="datasheet"){
+   blockers.push("Datasheet-only performance evidence cannot qualify the candidate for the workload-specific checkpoint requirement.");
+   actions.push("Request workload-specific vendor test or joint/customer qualification.");
+ } else if(vendorPerfSource==="unknown"||vendorPerfSource==="vendor_spec"){
+   warnings.push("Candidate workload-specific performance remains unqualified.");
+   actions.push("Request test evidence against the supplied checkpoint I/O envelope.");
+ }
+ if(enduranceSource==="unknown"){warnings.push("Candidate endurance evidence is missing.");actions.push("Request published endurance plus workload/lifetime calculation.");}
+ if(unsupportedVendorYes==="yes"){
+   blockers.push("The RFI allows an unsupported vendor 'yes/compliant' to satisfy a requirement.");
+   actions.push("Require an evidence class/reference for every material compliance claim.");
+ }
+
+ if(!thermal)tests.push("Run production-chassis thermal qualification for the exact candidate.");
+ tests.push("Run all-drive production-topology qualification.");
+ tests.push("Verify power-loss/data-protection behaviour where applicable.");
+
+ let state;
+ if(errors.length)state="INVALID INPUT";
+ else if(blockers.length)state="BLOCKED";
+ else if(env.warnings.length>0||!measured||!trace||(mode==="async"&&staging===null)||representative!=="yes"||cycles===null||cycles<10||(ckBasis==="typical"||ckBasis==="single")&&ckUpper===null||publication==="unknown"||publication==="files_only"||appComplete==="unknown"||storageSafe==="unknown"||recoveryObjective==="unknown"||selectionPolicy==="unknown"||integrityEvidence==="unknown"||versionChanged==="unknown"||topologyChanged==="unknown"||retentionPolicy==="unknown"||overlappingCheckpoints==="unknown"||integrityFreshness==="unknown"||checkpointMutability==="unknown"||cleanupDuringRecovery==="unknown"||createDuringRecovery==="unknown"||midSaveFailure==="unknown"||partitionDuringSave==="unknown"||visibilityConsensus==="unknown"||sharedAvailability==="unknown"||autoRestart==="unknown"||terminationDuringSave==="unknown"||restartOverlap==="unknown"||restartVisibilityRace==="unknown"||localFreeTB===null||capacityReservePct===null||metadataHeadroom==="unknown"||quotaHeadroom==="unknown"||highFillQualified==="unknown"||checkpointStaggered==="unknown"||evidenceGaps.length>0||candidatePerfEvidence==="unknown"||exactCandidateEvidence==="unknown"||evidenceReview==="unknown"||evidenceReview==="self_asserted"||deploymentState==="unknown"||!serverModel||requiredFormFactor==="unknown"||requiredPcieGen==="unknown"||requiredLanes==="unknown"||!backplaneConfig||!candidateMpn||!candidateFirmware||avlStatus==="unknown"||avlStatus==="vendor_claim"||((avlStatus==="listed"||avlStatus==="conditional")&&!avlEvidenceRef)||fitEvidence==="unknown"||powerCoolingFit==="unknown"||vendorPerfSource==="unknown"||vendorPerfSource==="vendor_spec"||enduranceSource==="unknown"||(recoveryObjective==="training_resume"&&optimizerRequired==="unknown")||(appComplete==="staged"&&(trainingTarget===null||trainingObserved===null)))state="MEASUREMENT REQUIRED";
+ else if(!thermal)state="QUALIFICATION TEST REQUIRED";
+ else state="READY FOR CANDIDATE QUALIFICATION";
+ return {state,errors,blockers,warnings,tests:[...new Set(tests)],actions:[...new Set(actions)],metrics,measured,trace,thermal,mode,failure,persistence,publication,checkpointFormat,appComplete,storageSafe,representative,cycles,ckBasis,trainingTarget,trainingObserved,recoveryObjective,recoveryValidation,differentHost,requiredState,resumeSanity,selectionPolicy,newestStatus,fallbackStatus,integrityEvidence,versionChanged,versionCompatibility,optimizerRequired,optimizerCompatible,topologyChanged,topologyCompatible,maxProgressLoss,retentionPolicy,overlappingCheckpoints,overlapSafety,maxInflight,progressIdentity,continuityCheck,integrityFreshness,checkpointMutability,restoreIntegrityCheck,cleanupDuringRecovery,recoveryPinning,createDuringRecovery,generationVisibility,selectionPin,semanticDriftCheck,midSaveFailure,partialSavePolicy,allRankFinalization,partitionDuringSave,partitionOutcome,visibilityConsensus,sharedAvailability,degradedSemantics,autoRestart,restartCheckpointGate,terminationDuringSave,terminationPolicy,restartGenerationPin,restartOverlap,restartConsensus,restartVisibilityRace,retainedGenerations,localFreeTB,capacityReservePct,metadataHeadroom,quotaHeadroom,highFillQualified,simultaneousJobs,checkpointStaggered,distributionEvidenceRef,ioEvidenceRef,recoveryEvidenceRef,thermalEvidenceRef,compatibilityEvidenceRef,candidatePerfEvidence,exactCandidateEvidence,evidenceReview,evidenceGaps,environment:env,deploymentState,serverModel,requiredFormFactor,requiredPcieGen,requiredLanes,availableBays,backplaneConfig,powerCoolingFit,incumbentDrive,candidateMpn,candidateFirmware,candidateFormFactor,candidatePcieGen,candidateLanes,candidateCapacityTB,avlStatus,avlEvidenceRef,fitEvidence,vendorPerfSource,enduranceSource,unsupportedVendorYes,rfiEvidencePlan};
+}
+function gap(){return engine().blockers.some(x=>x.includes("does not meet"))}
+function live(){
+ let e=engine(), box=document.getElementById("plainGap");
+ box.classList.toggle("hidden",!gap());
+ if(gap()) box.innerHTML="<strong>Protection gap:</strong> "+e.blockers.find(x=>x.includes("does not meet"))+" The tool will block final qualification until this is resolved.";
+}
+document.querySelectorAll("input,select").forEach(x=>x.addEventListener("change",live));
+
+function review(){
+ let e=engine(), c=e.metrics, known=[`${n("nodes")||"Unknown"} compute nodes`,`${n("drives")||"Unknown"} SSDs per node`,`${n("ckpt")||"Unknown"} TB checkpoint every ${n("intervalMin")||"Unknown"} minutes`,`${n("localSec")||"Unknown"} second local completion target`];
+ if(e.measured)known.push(`Measured worst SSD share: ${n("share").toFixed(2)}%`);
+ let ass=[];if(!e.measured&&c.totalDrives)ass.push(`Checkpoint data is provisionally spread equally across ${c.totalDrives} SSDs`);ass.push("Host DWPD is a host-write normalisation, not NAND wear or an endurance-class recommendation.");
+ let unk=[];e.warnings.forEach(x=>unk.push(x));e.blockers.forEach(x=>unk.push(x));
+ document.getElementById("known").innerHTML=known.map(x=>`<p class="small">• ${x}</p>`).join("");
+ document.getElementById("assumptions").innerHTML=ass.map(x=>`<p class="small">• ${x}</p>`).join("");
+ document.getElementById("unknown").innerHTML=unk.map(x=>`<p class="small">• ${x}</p>`).join("")||'<p class="small">• No material requirement gaps identified at this stage.</p>';
+}
+function explain(title,meaning,why,evidence,decision){
+ return `<div class="rulebox"><div class="rule-title">${title}</div><p><b>What it means:</b> ${meaning}</p><p><b>Why it matters:</b> ${why}</p><p><b>What resolves it:</b> ${evidence}</p><p class="decision"><b>Decision impact:</b> ${decision}</p></div>`;
+}
+function results(){
+ let e=engine(), c=e.metrics;
+ document.getElementById("engineState").textContent=e.state;
+ document.getElementById("blockCount").textContent=e.blockers.length;
+ document.getElementById("measureCount").textContent=e.warnings.length;
+ document.getElementById("testCount").textContent=e.tests.length;
+ document.getElementById("sideState").textContent=e.state.replaceAll("_"," ").toLowerCase();
+ let label=e.state, headline, hero;
+ if(e.state==="BLOCKED"){headline="Do not freeze the SSD requirement yet.";hero="A requirement, architecture or recovery contradiction must be resolved before device qualification can be trusted."}
+ else if(e.state==="MEASUREMENT REQUIRED"){headline="You have a useful preliminary requirement, but important evidence is still missing.";hero="The engine will calculate bounded values, while keeping assumptions visibly separate from measurements."}
+ else if(e.state==="QUALIFICATION TEST REQUIRED"){headline="The workload requirement is sufficiently defined to test exact candidate SSDs.";hero="The next risk is candidate behaviour in the real production topology, including thermal conditions."}
+ else if(e.state==="READY FOR CANDIDATE QUALIFICATION"){headline="The requirement is defined well enough to enter candidate qualification.";hero="This is not an SSD PASS. It means the input evidence is strong enough to run a defensible candidate test programme."}
+ else {headline="Some input is invalid.";hero="Correct the invalid value before relying on any calculated output."}
+ document.getElementById("readinessLabel").textContent=label;
+ document.getElementById("headline").textContent=headline;document.getElementById("heroText").textContent=hero;
+ document.getElementById("clusterBW").textContent=c.cluster?c.cluster.toFixed(1)+" GB/s":"—";
+ document.getElementById("driveBW").textContent=c.drive?c.drive.toFixed(3)+" GB/s":"—";
+ document.getElementById("writesDay").textContent=c.writes?c.writes.toFixed(3)+" TB":"—";
+ document.getElementById("driveBasis").textContent=e.measured?"Based on measured worst-drive share.":"Based on an explicit equal-share assumption.";
+ let f=[];
+ e.blockers.forEach(x=>f.push(["redline",x,"This is a blocking condition: changing SSD model alone may not solve it."]));
+ e.warnings.forEach(x=>f.push(["",x,"The tool keeps this as an evidence gap rather than silently treating an assumption as fact."]));
+ if(c.cluster)f.push(["greenline",`The stated local checkpoint target requires at least ${c.cluster.toFixed(1)} GB/s at cluster level.`,`This follows from checkpoint bytes divided by the allowed completion time.`]);
+ let ea=e.environment||environmentAssessment();
+ document.getElementById("environmentSummary").innerHTML=`
+   <div class="grid">
+    <div class="s6"><h3>System producing the checkpoint</h3>
+      <p class="small"><b>Framework:</b> ${ea.fingerprint.frameworkStack} · ${ea.fingerprint.frameworkVersion||"version unknown"}</p>
+      <p class="small"><b>Checkpoint stack:</b> ${ea.fingerprint.checkpointLibrary} · ${ea.fingerprint.checkpointStackFormat}</p>
+      <p class="small"><b>State:</b> ${ea.fingerprint.checkpointStateProfile} · <b>Precision:</b> ${ea.fingerprint.trainingPrecision}</p>
+      <p class="small"><b>Parallelism:</b> DP ${ea.fingerprint.dpDegree||"?"} · TP ${ea.fingerprint.tpDegree||"?"} · PP ${ea.fingerprint.ppDegree||"?"}</p>
+    </div>
+    <div class="s6"><h3>How configuration affects confidence</h3>
+      ${ea.facts.map(x=>`<p class="small">• ${x}</p>`).join("")}
+      ${ea.warnings.map(x=>`<p class="small"><span class="chip amber">EVIDENCE SCOPE</span> ${x}</p>`).join("")}
+    </div>
+   </div>`;
+ document.getElementById("vendorRfi").innerHTML=`
+ <p><b>Deployment:</b> ${e.deploymentState} · <b>Server:</b> ${e.serverModel||"unknown"} · <b>Required:</b> ${e.requiredFormFactor}/${e.requiredPcieGen==="unknown"?"PCIe ?":"PCIe "+e.requiredPcieGen+".0"} x${e.requiredLanes}</p>
+ <p><b>Incumbent:</b> ${e.incumbentDrive||"not recorded"}<br><b>Candidate:</b> ${e.candidateMpn||"unknown"} · firmware ${e.candidateFirmware||"unknown"} · ${e.candidateFormFactor} · PCIe ${e.candidatePcieGen}.0 x${e.candidateLanes}</p>
+ <p><b>OEM/server support:</b> ${e.avlStatus} ${e.avlEvidenceRef?`· ${e.avlEvidenceRef}`:"· evidence reference missing"}</p>
+ <div class="tablewrap"><table><thead><tr><th>RFI item</th><th>Evidence class</th><th>Vendor action</th><th>What counts</th></tr></thead><tbody>
+ ${e.rfiEvidencePlan.map(r=>`<tr><td>${r.item}</td><td><b>${r.source}</b></td><td>${r.vendor}</td><td>${r.accept}</td></tr>`).join("")}
+ </tbody></table></div>
+ <p class="small"><b>Rule:</b> OEM/AVL support proves supportability, not checkpoint-workload suitability. Workload qualification proves suitability, not OEM supportability. Both must be independently satisfied where required.</p>`;
+ document.getElementById("findings").innerHTML=f.map(x=>`<div class="finding ${x[0]}"><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("")||'<div class="finding greenline"><h3>No requirement blockers identified.</h3><p>Proceed to exact-candidate qualification; this is not yet a vendor/device PASS.</p></div>';
+ let rx=[];
+ if(e.persistence!=="unknown")rx.push(explain("Failure-domain rule",`You require survival of a ${e.failure} failure, while the checkpoint is protected to ${e.persistence.replaceAll("_"," ")}.`,`A checkpoint can be fast to write but still disappear in the failure you care about.`,`Evidence that a usable copy exists at or beyond the required failure domain.`,e.blockers.some(x=>x.includes("does not meet"))?"Blocks qualification.":"Requirement is internally consistent."));
+ rx.push(explain("Per-drive distribution rule",e.measured?`The worst measured drive receives ${n("share").toFixed(2)}% of checkpoint bytes.`:"No measured worst-drive share was supplied.",`Cluster averages can hide hot drives and understate both bandwidth and write-volume requirements.`,`Per-device byte counters across representative checkpoint cycles.`,e.measured?"Measured share supersedes the equal-share assumption.":"Device-level figures remain preliminary."));
+ rx.push(explain("I/O evidence rule",e.trace?"A representative I/O trace is available.":"Request-size/concurrency evidence is absent.",`SSD performance depends on the actual I/O pattern, not simply the label “checkpoint”.`,`A representative checkpoint trace or equivalent telemetry.`,e.trace?"Use the trace in candidate replay testing.":"Requires measurement before final qualification."));
+ if(e.mode==="async")rx.push(explain("Async staging rule",c.stageGB?`Average staged checkpoint share is about ${c.stageGB.toFixed(1)} GB per node.`:"Async staging is selected.",`Reducing training pause can move pressure into host memory and background I/O.`,`Known usable host-memory headroom plus production observation.`,e.blockers.some(x=>x.includes("host-memory"))?"Blocks current architecture.":(!n("stagingGB")?"Requires measurement.":"Staging capacity is provisionally adequate.")));
+ rx.push(explain("Checkpoint-size evidence rule",c.checkpointTBUsed?`The calculation is using ${c.checkpointTBUsed.toFixed(2)} TB as the sizing checkpoint.`:"Checkpoint size is unresolved.",`A typical or single checkpoint may not bound the largest checkpoint the system must land within the SLA.`,`Observed size distribution or an explicit design/worst-relevant bound.`,(e.ckBasis==="typical"||e.ckBasis==="single")&&!n("ckptUpper")?"Requires measurement/design decision.":"Sizing basis is explicit."));
+ rx.push(explain("Separate-clock rule",e.appComplete==="staged"?`Application-visible checkpointing is treated separately from local storage completion. Target=${e.trainingTarget??"unknown"}s; measured=${e.trainingObserved??"unknown"}s.`:"The application does not currently identify staging/training-resume as its completion boundary.",`Modern asynchronous checkpointing can let training resume before storage persistence is finished. One “checkpoint time” can therefore hide two different service objectives.`,`Separate measurements for training-visible impact, local-stable completion, and recovery-ready time where applicable.`,e.blockers.some(x=>x.includes("training-visible impact"))?"Training-impact objective is currently breached.":(e.appComplete==="staged"&&(e.trainingTarget===null||e.trainingObserved===null)?"Requires measurement/objective definition.":"Timing boundaries are sufficiently separated.")));
+ rx.push(explain("Completion-contract rule",`Application says “${e.appComplete.replaceAll("_"," ")}”; storage says “${e.storageSafe.replaceAll("_"," ")}”.`,`Teams can use the word “complete” for different moments: training can resume, writes have returned, storage is stable, or recovery is possible.`,`One documented timing/persistence contract shared by application and storage teams.`,e.appComplete!==e.storageSafe?"Different boundaries are valid, but must be timed and reported separately.":"The teams are using the same boundary."));
+ rx.push(explain("Checkpoint-publication rule",`Publication evidence is “${e.publication.replaceAll("_"," ")}”.`,`For distributed/multi-file checkpoints, writing data files is not automatically proof that the complete checkpoint metadata/namespace is durably published and recoverable.`,`Documented framework/storage semantics or a recovery test after the defined persistence event.`,e.blockers.some(x=>x.includes("Data-file flush"))?"Blocks the current persistence claim.":(e.publication==="unknown"?"Requires evidence.":"Publication evidence is explicit.")));
+ rx.push(explain("Telemetry-representativeness rule",e.cycles?`${e.cycles} checkpoint cycles are recorded; representativeness=${e.representative}.`:"No checkpoint-cycle count is recorded.",`A measured value can still be a misleading spot sample. There is no universal sample count that makes every workload representative.`,`A documented capture window/cycle count plus confirmation that it covers the production state being qualified.`,e.representative==="yes"?"Evidence is accepted as representative for this model.":"Final qualification remains measurement-bound."));
+ rx.push(explain("Recovery-validity rule",`Objective=${e.recoveryObjective.replaceAll("_"," ")}; evidence=${e.recoveryValidation.replaceAll("_"," ")}.`,`Being able to read checkpoint bytes is not necessarily proof that the framework can load the checkpoint, all required training state is present, or the job can resume correctly.`,`A recovery validation whose depth matches the stated objective; for training recovery, explicitly validate required state and run a resumed-training smoke test.`,e.blockers.some(x=>x.includes("Recovery evidence")||x.includes("training smoke")||x.includes("Training resumption")||x.includes("Required checkpoint state"))?"Recovery correctness is not yet proven.":"Recovery evidence reaches the stated objective."));
+ rx.push(explain("Failure-independent recovery rule",`Recovery-location test=${e.differentHost}.`,`For node/rack/site failure objectives, testing only from the writer host/path can miss remapping, replication and visibility failures.`,`Recover from a host/location that survives the selected failure and include any remapping/availability delay.`,e.blockers.some(x=>x.includes("failure-independent"))?"Blocks the recovery claim.":"Recovery-location evidence is consistent with the failure objective."));
+ rx.push(explain("Newest-valid selection rule",`Selection=${e.selectionPolicy.replaceAll("_"," ")}; newest status=${e.newestStatus.replaceAll("_"," ")}; selected=${c.selectedCheckpoint??"not established"}.`,`The newest checkpoint can be incomplete or corrupt. Recovery should identify a usable generation rather than treating recency as validity.`,`Framework validity/integrity checks plus an available validated fallback generation.`,e.blockers.some(x=>x.includes("newest checkpoint")||x.includes("fallback checkpoint")||x.includes("Newest-valid"))?"Recovery generation selection is not safe yet.":(c.selectedCheckpoint==="fallback"?`Fallback is selected; estimated extra progress loss is ${c.additionalProgressLossMin??"unknown"} minutes.`:"Checkpoint selection is explicit.")));
+ rx.push(explain("Software-version compatibility rule",`Software changed=${e.versionChanged}; compatibility=${e.versionCompatibility}.`,`Checkpoint compatibility can vary across software versions, and model weights can have different compatibility from optimizer/training state.`,`Exact checkpoint load/resume validation on the current software version; conversion only where framework-supported.`,e.blockers.some(x=>x.includes("software/framework version")||x.includes("known to be incompatible"))?"Blocks recovery on the target software.":"No unresolved version blocker."));
+ rx.push(explain("Optimizer/training-state compatibility rule",`Required=${e.optimizerRequired}; validated=${e.optimizerCompatible}.`,`Continuing training may require more than model weights. A weights-only load can succeed while optimizer or other continuation state is incompatible.`,`Validate the application-required training state under the target framework version.`,e.blockers.some(x=>x.includes("optimizer/training"))?"Blocks full training-resume claim.":"Required training-state compatibility is explicit."));
+ rx.push(explain("Topology/resharding compatibility rule",`Topology changed=${e.topologyChanged}; validated=${e.topologyCompatible}.`,`Some distributed checkpoint formats support loading under different parallel configurations, but this is format/version specific and should not be assumed for every framework.`,`Validate the exact checkpoint under the intended recovery TP/PP/DP/node topology.`,e.blockers.some(x=>x.includes("topology"))?"Blocks target-topology recovery.":"No unresolved topology blocker."));
+ rx.push(explain("Fallback progress-loss rule",c.selectedCheckpoint==="fallback"?`Recovery uses an older checkpoint and adds about ${c.additionalProgressLossMin??"unknown"} minutes of progress loss.`:"Newest validated checkpoint is selected.",`An older checkpoint can be technically valid yet violate the business RPO/progress-loss objective.`,`A defined maximum acceptable progress loss plus checkpoint-generation age.`,e.blockers.some(x=>x.includes("progress loss"))?"Fallback is valid but not acceptable for the stated progress-loss objective.":"No fallback/RPO blocker."));
+ rx.push(explain("Retention/cleanup rule",`Policy=${e.retentionPolicy.replaceAll("_"," ")}.`,`Deleting by count/age alone can remove the last known-good checkpoint while a newer async save is incomplete or invalid.`,`A policy that preserves a known-good generation until its successor is finalized and validated.`,e.blockers.some(x=>x.includes("Age/count-only"))?"Cleanup policy can create a recovery gap.":(e.retentionPolicy==="unknown"?"Requires policy definition.":"Retention policy is explicit.")));
+ rx.push(explain("Concurrent checkpoint rule",`Overlap=${e.overlappingCheckpoints}; safety=${e.overlapSafety}; max in-flight=${e.maxInflight??"unknown"}.`,`Async checkpoint frameworks can queue/finalize save requests. Overlapping generations need unique destinations and coordinated finalization/cleanup to avoid incomplete or overwritten recovery points.`,`Framework/version evidence plus observation of in-flight save depth under production cadence.`,e.blockers.some(x=>x.includes("Overlapping checkpoint"))?"Concurrent-save safety is not proven.":(e.overlappingCheckpoints==="unknown"?"Requires evidence.":"No unresolved concurrent-save blocker.")));
+ rx.push(explain("Post-restore continuity rule",`Progress identity=${e.progressIdentity}; continuity=${e.continuityCheck}.`,`A process can restart while using stale training progress or semantically wrong restored state. “It runs” is weaker than “it resumed from the intended checkpoint correctly”.`,`Project-specific checks that restored progress matches the chosen checkpoint and the resumed run passes an agreed continuity/sanity test.`,e.blockers.some(x=>x.includes("progress/step")||x.includes("continuity check"))?"Operational recovery correctness is not proven.":"Post-restore continuity evidence is explicit."));
+ rx.push(explain("Integrity-freshness rule",`Last integrity verification=${e.integrityFreshness.replaceAll("_"," ")}; checkpoint mutability=${e.checkpointMutability}.`,`A checkpoint that was valid when created can later be damaged, partially deleted or changed. Creation-time validity is not automatically restore-time validity.`,`Restore-time manifest/hash/completeness verification where supported, or strong immutable-storage controls plus appropriate validation.`,e.blockers.some(x=>x.includes("integrity is not rechecked")||x.includes("restore-time integrity"))?"Current checkpoint contents are not proven valid at restore.":"No unresolved restore-time integrity blocker."));
+ rx.push(explain("Recovery-versus-cleanup rule",`Cleanup can overlap recovery=${e.cleanupDuringRecovery}; selected-generation protection=${e.recoveryPinning}.`,`A known-good checkpoint can disappear during restore if retention/cleanup is allowed to delete or mutate it.`,`Pin/lease/reference/snapshot the selected generation until restore completes, or serialize cleanup and recovery.`,e.blockers.some(x=>x.includes("Cleanup can overlap recovery"))?"Recovery can race with deletion/mutation.":"No unresolved cleanup/recovery race."));
+ rx.push(explain("Creation-versus-recovery rule",`Creation can overlap recovery=${e.createDuringRecovery}; finalized-only visibility=${e.generationVisibility}; selection pin=${e.selectionPin}.`,`A new async checkpoint can become partially visible while recovery is choosing a generation. Recovery should select from finalized generations and keep one stable identity while loading.`,`Finalization marker/metadata plus stable generation selection/pinning.`,e.blockers.some(x=>x.includes("Recovery can observe")||x.includes("generation selection"))?"Concurrent creation can invalidate recovery selection.":"No unresolved creation/recovery race."));
+ rx.push(explain("Semantic-drift rule",`Check=${e.semanticDriftCheck.replaceAll("_"," ")}.`,`A process can run after restore while still using stale/wrong state. Operational liveness is weaker evidence than application-specific correct continuation.`,`A project-defined continuity check, for example expected step/state plus a workload-specific sanity signal.`,e.blockers.some(x=>x.includes("semantic training continuity")||x.includes("semantic continuity check"))?"Running is not yet proof of correct continuation.":"Project-specific semantic continuity evidence is explicit."));
+ rx.push(explain("Distributed-finalization rule",`Mid-save failure=${e.midSaveFailure}; partial-save policy=${e.partialSavePolicy}; all-rank finalization=${e.allRankFinalization}.`,`A distributed checkpoint can be incomplete even when many ranks finished writing. Publication must not make a partial generation look recovery-ready.`,`Framework/version evidence or fault-injection showing failed ranks prevent incomplete generation publication.`,e.blockers.some(x=>x.includes("participating rank")||x.includes("all-rank"))?"Distributed finalization is unsafe/unproven.":"No unresolved distributed-finalization blocker."));
+ rx.push(explain("Partition/visibility rule",`Partition in scope=${e.partitionDuringSave}; outcome=${e.partitionOutcome}; cross-host disagreement=${e.visibilityConsensus}.`,`Communication loss can create split views of whether a generation is complete. Recovery needs one authoritative finalized-generation view.`,`Fault injection plus cross-host recovery-selection checks.`,e.blockers.some(x=>x.includes("inconsistent checkpoint-finalization")||x.includes("disagree about which"))?"Checkpoint visibility can split across hosts.":"No unresolved visibility-consensus blocker."));
+ rx.push(explain("Degraded-shared-tier rule",`Shared tier=${e.sharedAvailability}; local-as-recovery-ready=${e.degradedSemantics}.`,`Local landing can remain fast while the required durable/recovery tier is unavailable. Calling that recovery-ready would overstate protection.`,`Degraded-mode test covering local-stable, durable completion, and recovery selection.`,e.blockers.some(x=>x.includes("Local completion is being treated"))?"Recovery-ready semantics are unsafe.":"No unresolved degraded-tier semantic blocker."));
+ rx.push(explain("Scheduler-restart rule",`Auto restart=${e.autoRestart}; finalized-checkpoint gate=${e.restartCheckpointGate}; generation pin=${e.restartGenerationPin}.`,`A fault-tolerant launcher can restart quickly enough to race checkpoint finalization or select different recovery generations across workers.`,`Orchestrator test showing restart waits for a finalized valid generation and pins it before distributed worker launch.`,e.blockers.some(x=>x.includes("Automatic restart")||x.includes("Restart does not pin")||x.includes("Restart generation"))?"Orchestration can restart from an unstable checkpoint state.":"No unresolved restart-generation blocker."));
+ rx.push(explain("Termination/preemption rule",`Termination during save=${e.terminationDuringSave}; policy=${e.terminationPolicy}.`,`Signals/preemption can arrive while async checkpoint work is active. Exit must either finalize safely or leave the generation clearly invalid/ineligible.`,`Preemption/failure injection while checkpoint save is in flight.`,e.blockers.some(x=>x.includes("Termination can"))?"In-flight checkpoint exit semantics are unsafe/unproven.":"No unresolved termination checkpoint blocker."));
+ rx.push(explain("Restart-visibility rule",`Visibility race=${e.restartVisibilityRace}; overlapping restarts=${e.restartOverlap}; consensus=${e.restartConsensus}.`,`New allocations may start before shared checkpoint state/remapping is visible, or multiple restart attempts may disagree on recovery generation.`,`End-to-end orchestration test from failure detection through checkpoint visibility and worker resume.`,e.blockers.some(x=>x.includes("Restart can begin")||x.includes("Overlapping restart"))?"Scheduler/recovery race is unsafe.":"No unresolved restart visibility/consensus blocker."));
+ rx.push(explain("Capacity-working-set rule",c.requiredLocalCapacityTB!==undefined?`Modelled local working set=${c.requiredLocalCapacityTB.toFixed(2)} TB; free capacity=${e.localFreeTB??"unknown"} TB.`:"Capacity working set is not fully defined.",`Retention, an in-flight generation and explicit reserve can require substantially more usable space than one checkpoint.`,`Usable free-capacity measurement plus retention/in-flight/reserve policy.`,e.blockers.some(x=>x.includes("Usable local checkpoint capacity"))?"Capacity exhaustion can prevent checkpoint completion.":"No unresolved capacity-working-set blocker."));
+ rx.push(explain("Metadata/quota rule",`Metadata=${e.metadataHeadroom}; quota=${e.quotaHeadroom}.`,`A filesystem can fail checkpoint creation because of metadata/inode or quota limits even when raw bytes remain available.`,`Target-file-count metadata/inode check plus effective quota validation.`,e.blockers.some(x=>x.includes("metadata/inode")||x.includes("Quota/allocation"))?"Resource limit can block checkpoint creation.":"No unresolved metadata/quota blocker."));
+ rx.push(explain("High-fill/contention rule",`High-fill qualification=${e.highFillQualified}; simultaneous jobs=${e.simultaneousJobs}; staggered=${e.checkpointStaggered}.`,`Storage behaviour at high utilisation and coincident checkpoint bursts can differ from single-job fresh-space testing.`,`High-fill replay plus multi-job contention test/admission policy where applicable.`,e.blockers.some(x=>x.includes("maximum permitted storage fill")||x.includes("Coincident checkpoint"))?"Operating-condition requirement is not met.":"No unresolved capacity/contention blocker."));
+ rx.push(explain("Evidence-provenance rule",`Evidence gaps=${e.evidenceGaps.length}; review=${e.evidenceReview}.`,`A friendly questionnaire can be gamed if selecting “measured” or “validated” is enough to turn a result green. Qualification-ready claims need traceable evidence references.`,`Telemetry/test/document references tied to the claimed measurement or validation.`,e.evidenceGaps.length?"Claims remain evidence-bound despite positive answers.":"Key positive claims have linked evidence references."));
+ rx.push(explain("Candidate-evidence rule",`Performance evidence=${e.candidatePerfEvidence}; exact candidate=${e.exactCandidateEvidence}.`,`Datasheet/family-level evidence can help shortlist devices but does not prove the exact MPN/firmware meets the production-like workload.`,`Exact-candidate vendor evidence plus production-like qualification where required.`,e.blockers.some(x=>x.includes("family-level"))?"Candidate identity/evidence mismatch blocks qualification.":(e.candidatePerfEvidence==="datasheet"?"Datasheet only: qualification test still required.":"Candidate evidence basis is explicit.")));
+ rx.push(explain("Thermal qualification rule",e.thermal?"Production-chassis thermal evidence is present.":"Production-chassis thermal evidence is not yet present.",`Sustained SSD behaviour can differ once the exact drive is installed alongside the rest of the node.`,`Production-like all-drive thermal test on exact MPN/firmware.`,e.thermal?"Thermal evidence gate satisfied.":"Candidate still needs qualification testing."));
+ document.getElementById("ruleExplanations").innerHTML=rx.join("");
+ let steps=[...e.actions,...e.tests];document.getElementById("nextSteps").innerHTML=steps.map((x,i)=>`<div class="step"><div class="num">${i+1}</div><div><strong>${x}</strong></div></div>`).join("");
+ document.getElementById("techTable").innerHTML=[
+ ["Engine state",e.state,"Rules-engine outcome; not an SSD recommendation"],
+ ["Minimum cluster write throughput",c.cluster?c.cluster.toFixed(2)+" GB/s":"—","Checkpoint bytes / local-stable target"],
+ ["Per-drive contribution",c.drive?c.drive.toFixed(3)+" GB/s":"—",e.measured?"Measured worst-drive share":"Equal-distribution assumption"],
+ ["Host writes / drive / day",c.writes?c.writes.toFixed(3)+" TB/day":"—",e.measured?"Measured share":"Bounded by distribution assumption"],
+ ["Host DWPD","Not calculated until an exact candidate capacity is known","Avoids using an arbitrary drive-capacity normalisation"],
+ ["Async staged bytes / node",c.stageGB?c.stageGB.toFixed(1)+" GB":"N/A",e.mode==="async"?"Checkpoint size / node count":"Synchronous/unknown mode"]
+ ].map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join("");
+}
+function actions(){
+ let e=engine(), cards=[];
+ e.blockers.forEach(x=>cards.push(["Resolve blocking issue",x,"BLOCKING"]));
+ e.actions.forEach(x=>cards.push(["Collect/resolve evidence",x,"MEASURE"]));
+ e.tests.forEach(x=>cards.push(["Qualification test",x,"QUALIFY"]));
+ document.getElementById("actionCards").innerHTML=cards.map(x=>`<div class="card s6"><span class="chip ${x[2]==="BLOCKING"?"red":x[2]==="MEASURE"?"amber":"blue"}">${x[2]}</span><h2>${x[0]}</h2><p class="small">${x[1]}</p></div>`).join("");
+ document.getElementById("supplierReady").innerHTML=e.state==="BLOCKED"?"<strong>Supplier discovery can begin, but do not freeze the SSD requirement.</strong> At least one blocking architecture/requirement issue could change what needs to be bought or tested.":"<strong>You can start supplier conversations.</strong> Treat the generated brief as a qualification request, never as proof that a candidate has passed.";
+}
+function rfi(){
+ let e=engine(),c=e.metrics;
+ document.getElementById("rfiProject").textContent=t("project");
+ document.getElementById("rfiCkpt").textContent=n("ckpt")+" TB";
+ document.getElementById("rfiInterval").textContent=n("intervalMin")+" minutes";
+ document.getElementById("rfiLocal").textContent=n("localSec")+" seconds";
+ document.getElementById("rfiDrive").textContent=c.drive?c.drive.toFixed(3)+" GB/s ("+(e.measured?"measured distribution basis":"preliminary equal-share assumption")+")":"Not yet defensible";
+ document.getElementById("rfiWrites").textContent=c.writes?c.writes.toFixed(3)+" TB/day":"Not yet defensible";
+}
+function scenario(v){
+ const set=(id,v)=>document.getElementById(id).value=v;
+ set("deploymentState","existing");set("serverModel","Exact OEM/server model recorded");set("requiredFormFactor","u2");set("requiredPcieGen","5");set("requiredLanes","4");set("availableBays","8");set("backplaneConfig","Exact NVMe backplane/carrier configuration recorded");set("powerCoolingFit","fits");set("incumbentDrive","Incumbent exact MPN + firmware recorded");set("candidateMpn","Candidate exact MPN recorded");set("candidateFirmware","Candidate firmware recorded");set("candidateFormFactor","u2");set("candidatePcieGen","5");set("candidateLanes","4");set("candidateCapacityTB","7.68");set("avlStatus","listed");set("avlEvidenceRef","OEM support matrix / AVL reference recorded");set("fitEvidence","oem");set("vendorPerfSource","joint_test");set("enduranceSource","datasheet");set("unsupportedVendorYes","no");set("workloadType","pretraining");set("modelFamily","Transformer / LLM");set("modelParamsB","405");set("frameworkStack","nemo_megatron");set("frameworkVersion","validated-current");set("checkpointLibrary","megatron_dist");set("checkpointStackFormat","torch_dist");set("checkpointStateProfile","full_resume");set("trainingPrecision","mixed");set("acceleratorType","GPU platform - exact type recorded");set("acceleratorsPerNode","8");set("dpDegree","2");set("tpDegree","8");set("ppDegree","4");set("parallelSave","yes");set("sharedBackend","Shared durable storage - exact backend recorded");set("networkFabric","Production fabric - exact configuration recorded");set("schedulerStack","slurm");set("schedulerConfig","Production restart/preemption policy recorded");set("distributionEvidenceRef","trace-run-001");set("ioEvidenceRef","io-trace-001");set("recoveryEvidenceRef","recovery-run-001");set("thermalEvidenceRef","thermal-run-001");set("compatibilityEvidenceRef","compat-run-001");set("candidatePerfEvidence","production_like");set("exactCandidateEvidence","yes");set("evidenceReview","linked");set("retainedGenerations","2");set("localFreeTB","20");set("capacityReservePct","20");set("metadataHeadroom","adequate");set("quotaHeadroom","adequate");set("highFillQualified","yes");set("simultaneousJobs","1");set("checkpointStaggered","yes");set("autoRestart","yes");set("restartCheckpointGate","yes");set("terminationDuringSave","yes");set("terminationPolicy","finalize_before_exit");set("restartGenerationPin","yes");set("restartOverlap","no");set("restartConsensus","yes");set("restartVisibilityRace","no");set("midSaveFailure","yes");set("partialSavePolicy","abort");set("allRankFinalization","yes");set("partitionDuringSave","yes");set("partitionOutcome","fail_closed");set("visibilityConsensus","no");set("sharedAvailability","available");set("degradedSemantics","no");set("pathCeiling","");set("stagingGB","");set("recoverySec","");set("recoveryObservedSec","");set("trainingTargetSec","");set("trainingObservedSec","");set("integrityFreshness","before_restore");set("checkpointMutability","immutable");set("restoreIntegrityCheck","yes");set("cleanupDuringRecovery","no");set("recoveryPinning","yes");set("createDuringRecovery","no");set("generationVisibility","yes");set("selectionPin","yes");set("semanticDriftCheck","project_check");set("maxProgressLossMin","10");set("retentionPolicy","keep_last_valid");set("overlappingCheckpoints","no");set("overlapSafety","yes");set("maxInflight","1");set("progressIdentity","pass");set("continuityCheck","pass");set("recoveryObjective","training_resume");set("recoveryValidation","none");set("differentHostRecovery","unknown");set("requiredStateValidated","unknown");set("resumeSanity","unknown");set("selectionPolicy","newest_valid");set("newestStatus","valid");set("fallbackStatus","valid");set("fallbackGenerations","1");set("integrityEvidence","resume_verified");set("versionChanged","no");set("versionCompatibility","yes");set("optimizerRequired","yes");set("optimizerCompatible","yes");set("topologyChanged","no");set("topologyCompatible","yes");set("ckptUpper","");set("ckptBasis","typical");set("checkpointFormat","multi_file");set("telemetryCycles","");set("telemetryRepresentative","unknown");set("appComplete","unknown");set("storageSafe","unknown");set("publication","unknown");set("thermal","no");set("mode","sync");
+ if(v==="s1"){set("project","Large AI training cluster");set("nodes",64);set("ckpt",5.29);set("intervalMin",10);set("drives",4);set("localSec",20);set("recoverySec","");set("failure","node");set("safe","local_single");set("layout","stripe");document.querySelector('input[name="spread"][value="believe"]').checked=true;document.querySelector('input[name="trace"][value="no"]').checked=true}
+ if(v==="s2"){set("project","Frequent checkpoint workload with measured SSD skew");set("nodes",16);set("ckpt",1.2);set("intervalMin",2);set("drives",2);set("localSec",15);set("failure","node");set("safe","cross_node");set("layout","redundant");set("share",7);set("ckptBasis","design_bound");set("telemetryCycles",20);set("telemetryRepresentative","yes");set("appComplete","local_stable");set("storageSafe","local_stable");set("publication","recovery_verified");set("recoveryObjective","training_resume");set("recoveryValidation","training_resume");set("differentHostRecovery","yes");set("requiredStateValidated","yes");set("resumeSanity","pass");set("thermal","yes");document.querySelector('input[name="spread"][value="measured"]').checked=true;document.querySelector('input[name="trace"][value="yes"]').checked=true}
+ if(v==="s3"){set("project","Fast local checkpoint with recovery requirement");set("nodes",8);set("ckpt",.8);set("intervalMin",30);set("drives",4);set("localSec",8);set("recoverySec",120);set("failure","node");set("safe","local_single");set("layout","stripe");set("mode","async");document.querySelector('input[name="spread"][value="believe"]').checked=true;document.querySelector('input[name="trace"][value="no"]').checked=true}
+ document.getElementById("shareWrap").classList.toggle("hidden",radio("spread")!=="measured");live();show(0)
+}
+document.getElementById("scenario").onchange=e=>scenario(e.target.value);scenario("s1");
+
+const RESEARCH_AREAS=[
+ ["storage_requirement","Storage requirement"],
+ ["checkpoint_calculations","Checkpoint calculations"],
+ ["evidence_gaps","Missing evidence / risk conclusions"],
+ ["recovery","Recovery requirements"],
+ ["candidate","Candidate SSD qualification"],
+ ["oem_avl","OEM / server / AVL assessment"],
+ ["test_plan","Qualification test plan"],
+ ["vendor_rfi","Vendor RFI / evidence plan"]
+];
+const RESEARCH_VERDICTS=["Correct","Mostly correct","Unsure","Materially wrong","Dangerous"];
+let researchStartedAt=Date.now();
+
+function initResearch(){
+ if(document.getElementById("researchAreas").dataset.ready)return;
+ document.getElementById("researchAreas").innerHTML=RESEARCH_AREAS.map(([id,label])=>`
+ <div class="card" style="margin-bottom:12px">
+  <h3>${label}</h3>
+  <div class="grid">
+   <div class="s4 field"><label>Your verdict</label><select id="rv_${id}" onchange="researchVerdictChange('${id}')"><option value="">Select</option>${RESEARCH_VERDICTS.map(x=>`<option>${x}</option>`).join("")}</select></div>
+   <div class="s4 field"><label>Importance if wrong</label><select id="sev_${id}"><option value="">Select</option><option>S0 — cosmetic/preference</option><option>S1 — clarity/friction</option><option>S2 — material</option><option>S3 — dangerous</option></select></div>
+   <div class="s4 field"><label>Evidence/source type</label><select id="ev_${id}"><option value="">Select</option><option>Framework/project documentation</option><option>OEM documentation / AVL</option><option>Vendor technical document</option><option>Test/measurement evidence</option><option>Calculation/explanation</option><option>Industry practice</option><option>Other</option></select></div>
+   <div class="s12 field"><label>What is wrong, missing, or particularly useful?</label><textarea id="why_${id}" rows="3"></textarea></div>
+   <div class="s12 field"><label>What should CheckpointFit have done instead?</label><textarea id="instead_${id}" rows="2"></textarea></div>
+   <div class="s12 field"><label>Evidence/reference URL or citation description (optional)</label><input id="ref_${id}" placeholder="Public documentation link or description of evidence"></div>
+  </div>
+ </div>`).join("");
+ document.getElementById("researchAreas").dataset.ready="1";
+ loadResearchDraft();
+}
+function researchVerdictChange(id){
+ const v=document.getElementById("rv_"+id).value;
+ if(v==="Materially wrong"||v==="Dangerous"){
+  document.getElementById("why_"+id).focus();
+ }
+}
+function researchValue(id){let e=document.getElementById(id);return e?e.value:"";}
+function researchSnapshot(){
+ let assessment={};
+ try{
+  let e=engine();
+  assessment={
+   state:e.state,
+   blockers:e.blockers||[],
+   warnings:e.warnings||[],
+   tests:e.tests||[],
+   actions:e.actions||[],
+   environment:e.environment||{},
+   deployment:{state:e.deploymentState,server:e.serverModel,requiredFormFactor:e.requiredFormFactor,requiredPcieGen:e.requiredPcieGen,requiredLanes:e.requiredLanes,incumbent:e.incumbentDrive},
+   candidate:{mpn:e.candidateMpn,firmware:e.candidateFirmware,formFactor:e.candidateFormFactor,pcieGen:e.candidatePcieGen,lanes:e.candidateLanes,avlStatus:e.avlStatus,avlEvidenceRef:e.avlEvidenceRef,performanceEvidence:e.vendorPerfSource}
+  };
+ }catch(err){assessment={error:String(err)}}
+ return {
+  schema:"checkpointfit-break-it-feedback-v1.0",
+  prototypeVersion:"CheckpointFit v1.0 / engine v1.9",
+  exportedAt:new Date().toISOString(),
+  activeResearchMinutes:Math.round((Date.now()-researchStartedAt)/600)/100,
+  participant:{
+   reference:researchValue("researchParticipant"),role:researchValue("researchRole"),
+   perspective:researchValue("researchPerspective"),project:researchValue("researchProject"),
+   normalManualHours:researchValue("researchManualHours"),remainingDeskHours:researchValue("researchFollowupHours"),
+   originalDecisionConfidence:researchValue("researchOriginalConfidence")
+  },
+  informationAvailability:{
+   knowNow:researchValue("availKnow"),internalLookup:researchValue("availLookup"),anotherTeam:researchValue("availTeam"),
+   vendorOem:researchValue("availVendor"),measurementTest:researchValue("availMeasure"),notRelevant:researchValue("availIrrelevant"),
+   didNotUnderstand:researchValue("availUnclear"),evidenceSourceUnclear:researchValue("availEvidence")
+  },
+  challenges:Object.fromEntries(RESEARCH_AREAS.map(([id,label])=>[id,{
+   label,verdict:researchValue("rv_"+id),severity:researchValue("sev_"+id),evidenceType:researchValue("ev_"+id),
+   explanation:researchValue("why_"+id),expectedInstead:researchValue("instead_"+id),reference:researchValue("ref_"+id)
+  }])),
+  overall:{
+   technicalCredibility:researchValue("overallCredibility"),realDecisionUse:researchValue("decisionUse"),
+   nextActionClearer:researchValue("nextActionClearer"),materialFinding:researchValue("materialFinding"),
+   workEffect:researchValue("workEffect"),useAgainFree:researchValue("useAgain"),shareInternally:researchValue("shareInternal"),
+   useRfi:researchValue("useRfi"),mostUsefulStage:researchValue("useStage"),useAgainWhy:researchValue("useAgainWhy"),
+   firstTrustBreak:researchValue("trustBreak"),missingQuestion:researchValue("missingQuestion"),keepDelete:researchValue("keepDelete"),
+   other:researchValue("researchOther")
+  },
+  assessmentSnapshot:assessment
+ };
+}
+function saveResearchDraft(){
+ try{localStorage.setItem("simmsBreakItDraft",JSON.stringify(researchSnapshot()));}
+ catch(e){let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Local draft storage is unavailable in this browser context.</strong> You can still export the feedback JSON.";return;}
+ let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved locally.</strong> It remains in this browser only.";
+}
+function loadResearchDraft(){
+ let raw=null;try{raw=localStorage.getItem("simmsBreakItDraft")}catch(e){return} if(!raw)return;
+ try{
+  let d=JSON.parse(raw), map={
+   researchParticipant:d.participant?.reference,researchRole:d.participant?.role,researchPerspective:d.participant?.perspective,researchProject:d.participant?.project,
+   researchManualHours:d.participant?.normalManualHours,researchFollowupHours:d.participant?.remainingDeskHours,researchOriginalConfidence:d.participant?.originalDecisionConfidence,
+   availKnow:d.informationAvailability?.knowNow,availLookup:d.informationAvailability?.internalLookup,availTeam:d.informationAvailability?.anotherTeam,
+   availVendor:d.informationAvailability?.vendorOem,availMeasure:d.informationAvailability?.measurementTest,availIrrelevant:d.informationAvailability?.notRelevant,
+   availUnclear:d.informationAvailability?.didNotUnderstand,availEvidence:d.informationAvailability?.evidenceSourceUnclear,
+   overallCredibility:d.overall?.technicalCredibility,decisionUse:d.overall?.realDecisionUse,nextActionClearer:d.overall?.nextActionClearer,
+   materialFinding:d.overall?.materialFinding,workEffect:d.overall?.workEffect,useAgain:d.overall?.useAgainFree,shareInternal:d.overall?.shareInternally,
+   useRfi:d.overall?.useRfi,useStage:d.overall?.mostUsefulStage,useAgainWhy:d.overall?.useAgainWhy,trustBreak:d.overall?.firstTrustBreak,
+   missingQuestion:d.overall?.missingQuestion,keepDelete:d.overall?.keepDelete,researchOther:d.overall?.other
+  };
+  Object.entries(map).forEach(([id,v])=>{let e=document.getElementById(id);if(e&&v!==undefined)e.value=v});
+  RESEARCH_AREAS.forEach(([id])=>{let c=d.challenges?.[id];if(!c)return;[["rv_",c.verdict],["sev_",c.severity],["ev_",c.evidenceType],["why_",c.explanation],["instead_",c.expectedInstead],["ref_",c.reference]].forEach(([pre,v])=>{let e=document.getElementById(pre+id);if(e&&v!==undefined)e.value=v})});
+ }catch(e){}
+}
+function exportResearch(){
+ let d=researchSnapshot();
+ let material=Object.values(d.challenges).filter(x=>x.severity?.startsWith("S2")||x.severity?.startsWith("S3")).length;
+ let dangerous=Object.values(d.challenges).filter(x=>x.severity?.startsWith("S3")).length;
+ let blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+ let a=document.createElement("a"),ref=(d.participant.reference||"anonymous").replace(/[^a-z0-9_-]/gi,"_");
+ a.href=URL.createObjectURL(blob);a.download=`checkpointfit_break_it_${ref}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ let r=document.getElementById("researchReceipt");r.classList.remove("hidden");
+ r.innerHTML=`<strong>Feedback exported.</strong> Participant ${d.participant.reference||"anonymous"} · ${material} material challenge(s) · ${dangerous} S3 challenge(s). Return the JSON file using your participation instructions.`;
+}
+
+</script>
+</body></html>
