@@ -403,19 +403,36 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 <section class="screen" data-i="6">
 <h1>Supplier qualification brief</h1>
-<p class="lead">A vendor-neutral brief you can use to start a technically meaningful conversation without pretending the SSD has already been selected.</p>
+<p class="lead">A vendor-neutral qualification request that carries the assessment evidence forward without pretending a candidate has already passed.</p>
 <div class="rfi">
-<h2>AI Training Checkpoint Storage — Qualification Brief</h2>
+<h2>AI Training Checkpoint Storage — Supplier Qualification / RFI Brief</h2>
+<div id="rfiStatus" class="callout warn"></div>
+
+<h3>1. Workload and requirement context</h3>
 <p><strong>Environment:</strong> <span id="rfiProject"></span></p>
 <p><strong>Checkpoint:</strong> <span id="rfiCkpt"></span> every <span id="rfiInterval"></span></p>
 <p><strong>Required local completion:</strong> <span id="rfiLocal"></span></p>
+<p><strong>Minimum cluster checkpoint write rate:</strong> <span id="rfiCluster"></span></p>
 <p><strong>Preliminary device contribution:</strong> <span id="rfiDrive"></span></p>
 <p><strong>Estimated host writes/device/day:</strong> <span id="rfiWrites"></span></p>
-<div class="callout warn"><strong>Qualification status:</strong> these figures may contain explicitly bounded assumptions. Supplier response does not constitute technical qualification.</div>
-<h3>Please provide evidence for the exact candidate</h3>
-<p class="small">Exact manufacturer / MPN / capacity / form factor · firmware revision and change control · sustained-write performance and complete test conditions · latency/QoS with block size, mix, QD and state · endurance rating and complete basis · PLP and data-path protection · power and thermal limits · standard/enhanced NVMe telemetry · lifecycle, PCN and EOL policy · qualification samples and production availability.</p>
-<h3>Response status for each requirement</h3>
+
+<h3>2. Deployment and exact candidate</h3>
+<div id="rfiDeployment"></div>
+<div id="rfiCandidate"></div>
+
+<h3>3. Assumptions and unresolved conditions</h3>
+<div id="rfiUnresolved"></div>
+
+<h3>4. Evidence requested from the supplier</h3>
+<p class="small">For every response, identify the exact manufacturer, MPN, capacity, form factor and firmware. Provide the measurement or document behind the answer, including test conditions where applicable. A simple “compliant” response is not qualification evidence.</p>
+<div class="tablewrap"><table><thead><tr><th>RFI item</th><th>Evidence class</th><th>Supplier action</th><th>What counts as evidence</th></tr></thead><tbody id="rfiEvidenceRows"></tbody></table></div>
+
+<h3>5. Qualification work still required</h3>
+<div id="rfiQualification"></div>
+
+<h3>6. Supplier response status</h3>
 <p class="small"><b>PASS · FAIL · NOT SUPPORTED · EVIDENCE NOT AVAILABLE</b></p>
+<div class="callout info"><strong>Decision rule:</strong> OEM/AVL support proves supportability, not checkpoint-workload suitability. Workload qualification proves suitability, not OEM supportability. Both must be independently satisfied where required.</div>
 </div>
 <div class="callout good"><strong>Where SIMMS becomes relevant:</strong> if you want help turning this requirement into an exact candidate shortlist, checking firmware/lifecycle risk, or independently qualifying second-source options, that is the natural next stage—not a prerequisite for using the free assessment.</div>
 <div class="actions"><button class="secondary prev">← Back</button><button class="secondary" onclick="window.print()">Print / save assessment</button><button class="primary" onclick="show(7)">Break CheckpointFit / give feedback →</button></div>
@@ -1374,12 +1391,32 @@ function actions(){
 }
 function rfi(){
  let e=engine(),c=e.metrics;
+ const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+ const fmt=x=>x&&String(x)!=="unknown"?String(x).replaceAll("_"," "):"unknown";
  document.getElementById("rfiProject").textContent=t("project");
  document.getElementById("rfiCkpt").textContent=n("ckpt")+" TB";
  document.getElementById("rfiInterval").textContent=n("intervalMin")+" minutes";
  document.getElementById("rfiLocal").textContent=n("localSec")+" seconds";
+ document.getElementById("rfiCluster").textContent=c.cluster?c.cluster.toFixed(3)+" GB/s":"Not yet defensible";
  document.getElementById("rfiDrive").textContent=c.drive?c.drive.toFixed(3)+" GB/s ("+(e.measured?"measured distribution basis":"preliminary equal-share assumption")+")":"Not yet defensible";
  document.getElementById("rfiWrites").textContent=c.writes?c.writes.toFixed(3)+" TB/day":"Not yet defensible";
+ document.getElementById("rfiStatus").innerHTML=e.state==="BLOCKED"
+  ? "<strong>Qualification status: BLOCKED.</strong> Supplier discovery may begin, but do not freeze the SSD requirement or treat any supplier response as technical qualification. One or more architecture, recovery or evidence conditions could still change what must be bought or tested."
+  : "<strong>Qualification status: "+esc(e.state)+".</strong> This brief is a qualification request, not proof that any candidate has passed.";
+ document.getElementById("rfiDeployment").innerHTML=`<p><strong>Deployment:</strong> ${esc(fmt(e.deploymentState))} · <strong>Server/platform:</strong> ${esc(e.serverModel||"not recorded")}</p>
+ <p><strong>Required interface:</strong> ${esc(fmt(e.requiredFormFactor))} · ${e.requiredPcieGen&&e.requiredPcieGen!=="unknown"?"PCIe "+esc(e.requiredPcieGen)+".0":"PCIe generation unknown"} · x${esc(e.requiredLanes||"?")}</p>
+ <p><strong>Incumbent:</strong> ${esc(e.incumbentDrive||"not recorded")}</p>`;
+ document.getElementById("rfiCandidate").innerHTML=`<p><strong>Candidate:</strong> ${esc(e.candidateMpn||"not recorded")} · firmware ${esc(e.candidateFirmware||"not recorded")} · ${esc(fmt(e.candidateFormFactor))} · ${e.candidatePcieGen&&e.candidatePcieGen!=="unknown"?"PCIe "+esc(e.candidatePcieGen)+".0":"PCIe generation unknown"} x${esc(e.candidateLanes||"?")}</p>
+ <p><strong>OEM/server support:</strong> ${esc(fmt(e.avlStatus))}${e.avlEvidenceRef?" · "+esc(e.avlEvidenceRef):" · evidence reference missing"}</p>`;
+ const unresolved=[...(e.blockers||[]),...(e.actions||[])];
+ document.getElementById("rfiUnresolved").innerHTML=unresolved.length
+  ? unresolved.map((x,i)=>`<p class="small"><span class="chip ${i<(e.blockers||[]).length?"red":"amber"}">${i<(e.blockers||[]).length?"BLOCKER":"EVIDENCE"}</span> ${esc(x)}</p>`).join("")
+  : '<p class="small">No unresolved architecture or evidence conditions were identified by the current assessment.</p>';
+ document.getElementById("rfiEvidenceRows").innerHTML=(e.rfiEvidencePlan||[]).map(r=>`<tr><td>${esc(r.item)}</td><td><b>${esc(r.source)}</b></td><td>${esc(r.vendor)}</td><td>${esc(r.accept)}</td></tr>`).join("") || '<tr><td colspan="4">No structured supplier evidence requests were generated.</td></tr>';
+ const q=e.tests||[];
+ document.getElementById("rfiQualification").innerHTML=q.length
+  ? q.map(x=>`<p class="small"><span class="chip blue">QUALIFY</span> ${esc(x)}</p>`).join("")
+  : '<p class="small">No additional qualification tests were generated by the current assessment.</p>';
 }
 function scenario(v){
  const set=(id,v)=>document.getElementById(id).value=v;
