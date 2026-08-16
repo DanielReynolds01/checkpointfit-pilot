@@ -78,8 +78,10 @@ async function submitResearchHosted(){
     });
     r.innerHTML=`<strong>Submitted.</strong> Reference ${out.submission_id||d.participant.reference}. Your research response has been received.`;
   }catch(err){
-    r.innerHTML=`<strong>Online submission unavailable.</strong> ${String(err.message||err)} You can still use “Export feedback (.json)” and return the file manually.`;
-  }
+const msg=String(err.message||err);
+r.innerHTML=msg.includes("Invalid participant code")
+  ? `<strong>Participant code not recognised.</strong> Please check the invitation link you were given. This response has not been submitted.`
+  : `<strong>Online submission unavailable.</strong> ${msg} You can still use “Export feedback (.json)” and return the file manually.`;  }
 }
 async function saveResearchDraftHosted(){
   const d=researchSnapshot();
