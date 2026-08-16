@@ -1457,12 +1457,12 @@ function researchSnapshot(){
  };
 }
 function saveResearchDraft(){
- try{localStorage.setItem("simmsBreakItDraft",JSON.stringify(researchSnapshot()));}
+ try{localStorage.setItem("simmsBreakItDraft_"+(researchValue("researchParticipant")||window.CHECKPOINTFIT_CONFIG?.participantCode||"anonymous"),JSON.stringify(researchSnapshot()));}
  catch(e){let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Local draft storage is unavailable in this browser context.</strong> You can still export the feedback JSON.";return;}
  let r=document.getElementById("researchReceipt");r.classList.remove("hidden");r.innerHTML="<strong>Draft saved locally.</strong> It remains in this browser only.";
 }
 function loadResearchDraft(){
- let raw=null;try{raw=localStorage.getItem("simmsBreakItDraft")}catch(e){return} if(!raw)return;
+ let raw=null;try{raw=localStorage.getItem("simmsBreakItDraft_"+(researchValue("researchParticipant")||window.CHECKPOINTFIT_CONFIG?.participantCode||"anonymous"))}catch(e){return} if(!raw)return;
  try{
   let d=JSON.parse(raw), map={
    researchParticipant:d.participant?.reference,researchRole:d.participant?.role,researchPerspective:d.participant?.perspective,researchProject:d.participant?.project,
